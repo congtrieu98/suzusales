@@ -1,11 +1,10 @@
 import { db } from "@/lib/db/index";
-import { PrismaAdapter } from "@auth/prisma-adapter"
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import { DefaultSession, getServerSession, NextAuthOptions } from "next-auth";
 import { Adapter } from "next-auth/adapters";
 import { redirect } from "next/navigation";
-import { env } from "@/lib/env.mjs"
+import { env } from "@/lib/env.mjs";
 import GoogleProvider from "next-auth/providers/google";
-
 
 declare module "next-auth" {
   interface Session {
@@ -21,6 +20,7 @@ export type AuthSession = {
       id: string;
       name?: string;
       email?: string;
+      image?: string;
     };
   } | null;
 };
@@ -41,7 +41,6 @@ export const authOptions: NextAuthOptions = {
   ],
 };
 
-
 export const getUserAuth = async () => {
   const session = await getServerSession(authOptions);
   return { session } as AuthSession;
@@ -51,4 +50,3 @@ export const checkAuth = async () => {
   const { session } = await getUserAuth();
   if (!session) redirect("/api/auth/signin");
 };
-

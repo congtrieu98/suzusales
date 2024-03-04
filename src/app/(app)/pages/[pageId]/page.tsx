@@ -8,7 +8,7 @@ import PageLinkList from "@/components/pageLinks/PageLinkList";
 
 import { BackButton } from "@/components/shared/BackButton";
 import Loading from "@/app/loading";
-
+import TogglePublic from "./_components/TongglePublic";
 
 export const revalidate = 0;
 
@@ -17,7 +17,6 @@ export default async function PagePage({
 }: {
   params: { pageId: string };
 }) {
-
   return (
     <main className="overflow-auto">
       <Page id={params.pageId} />
@@ -30,7 +29,6 @@ const Page = async ({ id }: { id: string }) => {
 
   const { page, pageLinks } = await getPageByIdWithPageLinks(id);
 
-
   if (!page) notFound();
   return (
     <Suspense fallback={<Loading />}>
@@ -38,13 +36,12 @@ const Page = async ({ id }: { id: string }) => {
         <BackButton currentResource="pages" />
         <OptimisticPage page={page} />
       </div>
+      <TogglePublic page={page} isSubscribed={true} />
       <div className="relative mt-8 mx-4">
-        <h3 className="text-xl font-medium mb-4">{page.name}&apos;s Page Links</h3>
-        <PageLinkList
-          pages={[]}
-          pageId={page.id}
-          pageLinks={pageLinks}
-        />
+        <h3 className="text-xl font-medium mb-4">
+          {page.name}&apos;s Page Links
+        </h3>
+        <PageLinkList pages={[]} pageId={page.id} pageLinks={pageLinks} />
       </div>
     </Suspense>
   );
