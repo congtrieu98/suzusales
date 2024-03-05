@@ -5,7 +5,7 @@ export const consultantSchema = z.object({
   id: z.string(),
   customerName: z.string(),
   projectName: z.string(),
-  content: z.string().nullish(),
+  content: z.string(),
   airDate: z.date(),
   status: z.string(),
   creator: z.string(),

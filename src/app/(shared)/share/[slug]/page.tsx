@@ -18,8 +18,8 @@ export default async function SharedPage({
           <div className="flex justify-center">
             <div className="w-24 h-24 rounded-full bg-gray-300" />
           </div>
-          <h1 className="text-2xl font-bold mt-4 text-white">{page.name}</h1>
-          <p className="text-white">{page.description}</p>
+          <h1 className="text-2xl font-bold mt-4 text-white">{page?.name}</h1>
+          <p className="text-white">{page?.description}</p>
         </header>
         <nav className="flex-1 w-full max-w-md flex flex-col gap-4">
           {pageLinks?.map((l) => (

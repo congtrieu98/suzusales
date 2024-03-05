@@ -101,7 +101,7 @@ model Consultant {
   id           String     @id @default(cuid())
   customerName String
   projectName  String
-  content      String?
+  content      String
   airDate      DateTime
   status       String
   creator      String
@@ -115,12 +115,12 @@ model Consultant {
 model Contract {
   id               String     @id @default(cuid())
   customerContract String
-  paymentSchedule  String?
-  scanContract     String?
-  finalContract    String?
-  customerAddress  String?
-  note             String?
-  status           String?
+  paymentSchedule  String
+  scanContract     String
+  finalContract    String
+  customerAddress  String
+  note             String
+  status           String
   checkSteps       String[]
   consultant       Consultant @relation(fields: [consultantId], references: [id], onDelete: Cascade)
   consultantId     String

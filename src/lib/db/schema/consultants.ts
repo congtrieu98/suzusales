@@ -9,7 +9,19 @@ const baseSchema = consultantSchema.omit(timestamps)
 
 export const insertConsultantSchema = baseSchema.omit({ id: true });
 export const insertConsultantParams = baseSchema.extend({
-  airDate: z.coerce.date()
+  airDate: z.coerce.date(),
+  customerName: z.string({
+    required_error: "Field is required",
+  }),
+  projectName: z.string({
+    required_error: "Field is required",
+  }),
+  status: z.string({
+    required_error: "Field is required",
+  }),
+  content: z.string({
+    required_error: "Field is required",
+  }),
 }).omit({
   id: true,
   userId: true,

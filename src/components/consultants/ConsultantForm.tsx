@@ -90,13 +90,13 @@ const ConsultantForm = ({
 
     closeModal && closeModal();
     const values = consultantParsed.data;
+    values.creator = session?.user.name as string
     console.log(values)
     const pendingConsultant: Consultant = {
       updatedAt: consultant?.updatedAt ?? new Date(),
       createdAt: consultant?.createdAt ?? new Date(),
       id: consultant?.id ?? "",
       userId: consultant?.userId ?? "",
-      creator: session?.user.name as string,
       ...values,
     };
     try {
