@@ -5,9 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const timestamps: { createdAt: true; updatedAt: true } = {
+export const timestamps: { createdAt: true; updatedAt: true, creator: true } = {
   createdAt: true,
   updatedAt: true,
+  creator: true
 };
 
 

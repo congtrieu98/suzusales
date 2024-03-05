@@ -48,15 +48,17 @@ model Session {
 }
 
 model User {
-  id            String     @id @default(cuid())
+  id            String       @id @default(cuid())
   name          String?
-  email         String?    @unique
+  email         String?      @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
   pages         Page[]
   pageLinks     PageLink[]
+  consultants   Consultant[]
+  contracts     Contract[]
 }
 
 model VerificationToken {
@@ -91,6 +93,41 @@ model PageLink {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Consultant {
+  id           String     @id @default(cuid())
+  customerName String
+  projectName  String
+  content      String?
+  airDate      DateTime
+  status       String
+  creator      String
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  Contract     Contract[]
+}
+
+model Contract {
+  id               String     @id @default(cuid())
+  customerContract String
+  paymentSchedule  String?
+  scanContract     String?
+  finalContract    String?
+  customerAddress  String?
+  note             String?
+  status           String?
+  checkSteps       String[]
+  consultant       Consultant @relation(fields: [consultantId], references: [id], onDelete: Cascade)
+  consultantId     String
+  userId           String
+  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 
   @@index([userId])
 }

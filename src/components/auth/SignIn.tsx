@@ -10,10 +10,6 @@ export default function SignIn() {
   if (session) {
     return (
       <div className="space-y-3">
-        <p>
-          Signed in as{" "}
-          <span className="font-medium">{session.user?.email}</span>
-        </p>
         <Button variant={"destructive"} onClick={() => signOut({ callbackUrl: "/" })}>
           Sign out
         </Button>

@@ -18,7 +18,7 @@ export default function Modal({
 }) {
   return (
     <Dialog onOpenChange={setOpen} open={open}>
-      <DialogContent>
+      <DialogContent className="rounded-md min-h-screen">
         <DialogHeader className="px-5 pt-2">
           <DialogTitle>{title ?? "Modal"}</DialogTitle>
         </DialogHeader>
