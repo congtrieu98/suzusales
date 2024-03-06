@@ -12,6 +12,7 @@ import {
   UpdateConsultantParams,
   consultantIdSchema,
   insertConsultantParams,
+  insertConsultantParamsCustom,
   updateConsultantParams,
 } from "@/lib/db/schema/consultants";
 
@@ -29,7 +30,7 @@ const revalidateConsultants = () => revalidatePath("/consultants");
 
 export const createConsultantAction = async (input: NewConsultantParams) => {
   try {
-    const payload = insertConsultantParams.parse(input);
+    const payload = insertConsultantParamsCustom.parse(input);
     await createConsultant(payload);
     revalidateConsultants();
   } catch (e) {

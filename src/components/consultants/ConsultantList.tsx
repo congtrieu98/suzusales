@@ -5,7 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
-import { type Consultant, CompleteConsultant } from "@/lib/db/schema/consultants";
+import {
+  type Consultant,
+  CompleteConsultant,
+} from "@/lib/db/schema/consultants";
 import Modal from "@/components/shared/Modal";
 
 import { useOptimisticConsultants } from "@/app/(app)/consultants/useOptimisticConsultants";
@@ -17,17 +20,15 @@ type TOpenModal = (consultant?: Consultant) => void;
 
 export default function ConsultantList({
   consultants,
-   
 }: {
   consultants: CompleteConsultant[];
-   
 }) {
-  const { optimisticConsultants, addOptimisticConsultant } = useOptimisticConsultants(
-    consultants,
-     
-  );
+  const { optimisticConsultants, addOptimisticConsultant } =
+    useOptimisticConsultants(consultants);
   const [open, setOpen] = useState(false);
-  const [activeConsultant, setActiveConsultant] = useState<Consultant | null>(null);
+  const [activeConsultant, setActiveConsultant] = useState<Consultant | null>(
+    null
+  );
   const openModal = (consultant?: Consultant) => {
     setOpen(true);
     consultant ? setActiveConsultant(consultant) : setActiveConsultant(null);
@@ -46,7 +47,6 @@ export default function ConsultantList({
           addOptimistic={addOptimisticConsultant}
           openModal={openModal}
           closeModal={closeModal}
-          
         />
       </Modal>
       <div className="absolute right-0 top-0 ">
@@ -86,22 +86,19 @@ const Consultant = ({
     ? pathname
     : pathname + "/consultants/";
 
-
   return (
     <li
       className={cn(
         "flex justify-between my-2",
         mutating ? "opacity-30 animate-pulse" : "",
-        deleting ? "text-destructive" : "",
+        deleting ? "text-destructive" : ""
       )}
     >
       <div className="w-full">
         <div>{consultant.customerName}</div>
       </div>
       <Button variant={"link"} asChild>
-        <Link href={ basePath + "/" + consultant.id }>
-          Edit
-        </Link>
+        <Link href={basePath + "/" + consultant.id}>Details</Link>
       </Button>
     </li>
   );
@@ -118,7 +115,8 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
       </p>
       <div className="mt-6">
         <Button onClick={() => openModal()}>
-          <PlusIcon className="h-4" /> New Consultants </Button>
+          <PlusIcon className="h-4" /> New Consultants{" "}
+        </Button>
       </div>
     </div>
   );

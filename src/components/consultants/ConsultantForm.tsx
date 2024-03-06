@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useValidatedForm } from "@/lib/hooks/useValidatedForm";
 
-import { type Action, cn } from "@/lib/utils";
+import { type Action, cn, formatDatetime } from "@/lib/utils";
 import { type TAddOptimistic } from "@/app/(app)/consultants/useOptimisticConsultants";
 
 import { Input } from "@/components/ui/input";
@@ -14,24 +14,36 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useBackPath } from "@/components/shared/BackButton";
 
-
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
+import moment from "moment";
 
-import { type Consultant, insertConsultantParams } from "@/lib/db/schema/consultants";
+import {
+  type Consultant,
+  insertConsultantParams,
+} from "@/lib/db/schema/consultants";
 import {
   createConsultantAction,
   deleteConsultantAction,
   updateConsultantAction,
 } from "@/lib/actions/consultants";
 import { useSession } from "next-auth/react";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
-
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 const ConsultantForm = ({
-
   consultant,
   openModal,
   closeModal,
@@ -48,10 +60,10 @@ const ConsultantForm = ({
   const { errors, hasErrors, setErrors, handleChange } =
     useValidatedForm<Consultant>(insertConsultantParams);
   const editing = !!consultant?.id;
-  const [airDate, setAirDate] = useState<Date | undefined>(
-    consultant?.airDate,
+  const [airDate, setAirDate] = useState<string>(
+    moment().format(formatDatetime).toString()
   );
-  const { data: session } = useSession()
+  const { data: session } = useSession();
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [pending, startMutation] = useTransition();
@@ -59,10 +71,9 @@ const ConsultantForm = ({
   const router = useRouter();
   const backpath = useBackPath("consultants");
 
-
   const onSuccess = (
     action: Action,
-    data?: { error: string; values: Consultant },
+    data?: { error: string; values: Consultant }
   ) => {
     const failed = Boolean(data?.error);
     if (failed) {
@@ -77,47 +88,66 @@ const ConsultantForm = ({
       if (action === "delete") router.push(backpath);
     }
   };
-
+  console.log("consultant-airDate:", consultant?.airDate);
   const handleSubmit = async (data: FormData) => {
     setErrors(null);
 
     const payload = Object.fromEntries(data.entries());
-    const consultantParsed = await insertConsultantParams.safeParseAsync({ ...payload });
+    const consultantParsed = await insertConsultantParams.safeParseAsync({
+      ...payload,
+    });
     if (!consultantParsed.success) {
+      console.log("consultantParsed:", consultantParsed);
       setErrors(consultantParsed?.error.flatten().fieldErrors);
       return;
     }
 
     closeModal && closeModal();
     const values = consultantParsed.data;
-    values.creator = session?.user.name as string
-    console.log(values)
+    // values.creator = session?.user.name as string;
+    // values.airDate = moment(airDate).toDate();
+    console.log("values:", values);
+    console.log("airDate:", moment(airDate).toDate());
     const pendingConsultant: Consultant = {
       updatedAt: consultant?.updatedAt ?? new Date(),
       createdAt: consultant?.createdAt ?? new Date(),
       id: consultant?.id ?? "",
       userId: consultant?.userId ?? "",
+      creator: session?.user.name as string,
+      airDate: moment(airDate).toDate(),
       ...values,
     };
     try {
       startMutation(async () => {
-        addOptimistic && addOptimistic({
-          data: pendingConsultant,
-          action: editing ? "update" : "create",
-        });
+        addOptimistic &&
+          addOptimistic({
+            data: pendingConsultant,
+            action: editing ? "update" : "create",
+          });
 
-        // const error = editing
-        //   ? await updateConsultantAction({ ...values, id: consultant.id })
-        //   : await createConsultantAction(values);
+        const error = editing
+          ? await updateConsultantAction({
+              ...values,
+              id: consultant.id,
+              airDate: consultant?.airDate
+                ? consultant?.airDate
+                : moment(airDate).toDate(),
+              creator: session?.user.name as string,
+            })
+          : await createConsultantAction({
+              ...values,
+              airDate: moment(airDate).toDate(),
+              creator: session?.user.name as string,
+            });
 
-        // const errorFormatted = {
-        //   error: error ?? "Error",
-        //   values: pendingConsultant
-        // };
-        // onSuccess(
-        //   editing ? "update" : "create",
-        //   error ? errorFormatted : undefined,
-        // );
+        const errorFormatted = {
+          error: error ?? "Error",
+          values: pendingConsultant,
+        };
+        onSuccess(
+          editing ? "update" : "create",
+          error ? errorFormatted : undefined
+        );
       });
     } catch (e) {
       if (e instanceof z.ZodError) {
@@ -133,7 +163,7 @@ const ConsultantForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.customerName ? "text-destructive" : "",
+            errors?.customerName ? "text-destructive" : ""
           )}
         >
           Customer Name
@@ -145,7 +175,9 @@ const ConsultantForm = ({
           defaultValue={consultant?.customerName ?? ""}
         />
         {errors?.customerName ? (
-          <p className="text-xs text-destructive mt-2">{errors.customerName[0]}</p>
+          <p className="text-xs text-destructive mt-2">
+            {errors.customerName[0]}
+          </p>
         ) : (
           <div className="h-6" />
         )}
@@ -154,7 +186,7 @@ const ConsultantForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.projectName ? "text-destructive" : "",
+            errors?.projectName ? "text-destructive" : ""
           )}
         >
           Project Name
@@ -166,7 +198,9 @@ const ConsultantForm = ({
           defaultValue={consultant?.projectName ?? ""}
         />
         {errors?.projectName ? (
-          <p className="text-xs text-destructive mt-2">{errors.projectName[0]}</p>
+          <p className="text-xs text-destructive mt-2">
+            {errors.projectName[0]}
+          </p>
         ) : (
           <div className="h-6" />
         )}
@@ -175,7 +209,7 @@ const ConsultantForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.content ? "text-destructive" : "",
+            errors?.content ? "text-destructive" : ""
           )}
         >
           Content
@@ -196,49 +230,29 @@ const ConsultantForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.airDate ? "text-destructive" : "",
+            errors?.airDate ? "text-destructive" : ""
           )}
         >
           Air Date
         </Label>
         <br />
-        <Popover>
-          <Input
-            name="airDate"
-            onChange={() => { }}
-            readOnly
-            value={airDate?.toUTCString() ?? new Date().toUTCString()}
-            className="hidden"
-          />
-
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={cn(
-                "w-full pl-3 text-left font-normal",
-                !consultant?.airDate && "text-muted-foreground",
-              )}
-            >
-              {airDate ? (
-                <span>{format(airDate, "PPP")}</span>
-              ) : (
-                <span>Pick a date</span>
-              )}
-              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              onSelect={(e) => setAirDate(e)}
-              selected={airDate}
-              disabled={(date) =>
-                date > new Date() || date < new Date("1900-01-01")
-              }
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
+        <input
+          type="datetime-local"
+          name="airDate"
+          value={
+            consultant?.airDate
+              ? moment(consultant?.airDate).format(formatDatetime).toString()
+              : airDate
+          }
+          // disabled={editing && name === "createAt"}
+          onChange={(e) => setAirDate(e.target.value)}
+          className="p-2 w-full inline-flex items-center justify-center whitespace-nowrap
+          rounded-md text-sm font-medium ring-offset-background transition-colors
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
+          focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50
+          border border-input bg-background hover:bg-accent hover:text-accent-foreground
+          "
+        />
         {errors?.airDate ? (
           <p className="text-xs text-destructive mt-2">{errors.airDate[0]}</p>
         ) : (
@@ -249,20 +263,12 @@ const ConsultantForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.status ? "text-destructive" : "",
+            errors?.status ? "text-destructive" : ""
           )}
         >
           Status
         </Label>
-        {/* <Input
-          type="text"
-          name="status"
-          className={cn(errors?.status ? "ring ring-destructive" : "")}
-          defaultValue={consultant?.status ?? ""}
-        /> */}
-        <Select
-          name="status"
-        >
+        <Select name="status" defaultValue="Reviewing">
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
@@ -280,27 +286,6 @@ const ConsultantForm = ({
           <div className="h-6" />
         )}
       </div>
-      {/* <div>
-        <Label
-          className={cn(
-            "mb-2 inline-block",
-            errors?.creator ? "text-destructive" : "",
-          )}
-        >
-          Creator
-        </Label>
-        <Input
-          type="text"
-          name="creator"
-          className={cn(errors?.creator ? "ring ring-destructive" : "")}
-          defaultValue={consultant?.creator ?? ""}
-        />
-        {errors?.creator ? (
-          <p className="text-xs text-destructive mt-2">{errors.creator[0]}</p>
-        ) : (
-          <div className="h-6" />
-        )}
-      </div> */}
       {/* Schema fields end */}
 
       {/* Save Button */}
@@ -316,7 +301,8 @@ const ConsultantForm = ({
             setIsDeleting(true);
             closeModal && closeModal();
             startMutation(async () => {
-              addOptimistic && addOptimistic({ action: "delete", data: consultant });
+              addOptimistic &&
+                addOptimistic({ action: "delete", data: consultant });
               const error = await deleteConsultantAction(consultant.id);
               setIsDeleting(false);
               const errorFormatted = {
