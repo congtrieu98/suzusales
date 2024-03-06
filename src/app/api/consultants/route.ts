@@ -7,15 +7,15 @@ import {
   deleteConsultant,
   updateConsultant,
 } from "@/lib/api/consultants/mutations";
-import { 
+import {
   consultantIdSchema,
-  insertConsultantParams,
-  updateConsultantParams 
+  insertConsultantParamsCustom,
+  updateConsultantParams
 } from "@/lib/db/schema/consultants";
 
 export async function POST(req: Request) {
   try {
-    const validatedData = insertConsultantParams.parse(await req.json());
+    const validatedData = insertConsultantParamsCustom.parse(await req.json());
     const { consultant } = await createConsultant(validatedData);
 
     revalidatePath("/consultants"); // optional - assumes you will have named route same as entity

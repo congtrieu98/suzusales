@@ -1,9 +1,11 @@
+/* eslint-disable jsx-a11y/alt-text */
 import Link from "next/link";
 
 import SidebarItems from "./SidebarItems";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 import { AuthSession, getUserAuth } from "@/lib/auth/utils";
+import Image from "next/image";
 
 const Sidebar = async () => {
   const session = await getUserAuth();
@@ -13,7 +15,9 @@ const Sidebar = async () => {
     <aside className="h-screen min-w-52 bg-muted hidden md:block p-4 pt-8 border-r border-border shadow-inner">
       <div className="flex flex-col justify-between h-full">
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold ml-4">Logo</h3>
+          <Link href={"/"}>
+            <Image width={80} height={80} src={"/assets/favicon.png"} alt="logo" />
+          </Link>
           <SidebarItems />
         </div>
         <UserDetails session={session} />
@@ -44,9 +48,9 @@ const UserDetails = ({ session }: { session: AuthSession }) => {
           <AvatarFallback className="border-border border-2 text-muted-foreground">
             {user.name
               ? user.name
-                  ?.split(" ")
-                  .map((word) => word[0].toUpperCase())
-                  .join("")
+                ?.split(" ")
+                .map((word) => word[0].toUpperCase())
+                .join("")
               : "~"}
           </AvatarFallback>
         </Avatar>

@@ -14,13 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useBackPath } from "@/components/shared/BackButton";
 
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
 import moment from "moment";
 
 import {
@@ -38,7 +31,6 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
@@ -88,7 +80,6 @@ const ConsultantForm = ({
       if (action === "delete") router.push(backpath);
     }
   };
-  console.log("consultant-airDate:", consultant?.airDate);
   const handleSubmit = async (data: FormData) => {
     setErrors(null);
 
@@ -104,10 +95,6 @@ const ConsultantForm = ({
 
     closeModal && closeModal();
     const values = consultantParsed.data;
-    // values.creator = session?.user.name as string;
-    // values.airDate = moment(airDate).toDate();
-    console.log("values:", values);
-    console.log("airDate:", moment(airDate).toDate());
     const pendingConsultant: Consultant = {
       updatedAt: consultant?.updatedAt ?? new Date(),
       createdAt: consultant?.createdAt ?? new Date(),
@@ -127,18 +114,18 @@ const ConsultantForm = ({
 
         const error = editing
           ? await updateConsultantAction({
-              ...values,
-              id: consultant.id,
-              airDate: consultant?.airDate
-                ? consultant?.airDate
-                : moment(airDate).toDate(),
-              creator: session?.user.name as string,
-            })
+            ...values,
+            id: consultant.id,
+            airDate: consultant?.airDate
+              ? consultant?.airDate
+              : moment(airDate).toDate(),
+            creator: session?.user.name as string,
+          })
           : await createConsultantAction({
-              ...values,
-              airDate: moment(airDate).toDate(),
-              creator: session?.user.name as string,
-            });
+            ...values,
+            airDate: moment(airDate).toDate(),
+            creator: session?.user.name as string,
+          });
 
         const errorFormatted = {
           error: error ?? "Error",

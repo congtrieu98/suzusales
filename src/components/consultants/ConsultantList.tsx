@@ -15,6 +15,8 @@ import { useOptimisticConsultants } from "@/app/(app)/consultants/useOptimisticC
 import { Button } from "@/components/ui/button";
 import ConsultantForm from "./ConsultantForm";
 import { PlusIcon } from "lucide-react";
+import { DataTable } from "./table/data-table";
+import { columns } from "./table/columns";
 
 type TOpenModal = (consultant?: Consultant) => void;
 
@@ -57,15 +59,19 @@ export default function ConsultantList({
       {optimisticConsultants.length === 0 ? (
         <EmptyState openModal={openModal} />
       ) : (
-        <ul>
-          {optimisticConsultants.map((consultant) => (
-            <Consultant
-              consultant={consultant}
-              key={consultant.id}
-              openModal={openModal}
-            />
-          ))}
-        </ul>
+        // <ul>
+        //   {optimisticConsultants.map((consultant) => (
+        //     <Consultant
+        //       consultant={consultant}
+        //       key={consultant.id}
+        //       openModal={openModal}
+        //     />
+        //   ))}
+        // </ul>
+        <div className="container mx-auto py-10">
+
+          <DataTable columns={columns} data={optimisticConsultants} />
+        </div>
       )}
     </div>
   );
