@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { CompleteConsultant } from "@/lib/db/schema/consultants";
 import { formatDateSlash } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table"
@@ -26,6 +27,28 @@ export type ConsultantTypeColumns = {
 
 export const columns: ColumnDef<ConsultantTypeColumns>[] = [
     {
+        id: "select",
+        header: ({ table }) => (
+            <Checkbox
+                checked={
+                    table.getIsAllPageRowsSelected() ||
+                    (table.getIsSomePageRowsSelected() && "indeterminate")
+                }
+                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                aria-label="Select all"
+            />
+        ),
+        cell: ({ row }) => {
+            return (
+                <Checkbox
+                    checked={row.getIsSelected()}
+                    onCheckedChange={(value) => row.toggleSelected(!!value)}
+                    aria-label="Select row"
+                />
+            );
+        },
+    },
+    {
         accessorKey: "customerName",
         header: "Customer Name"
     },
@@ -40,10 +63,6 @@ export const columns: ColumnDef<ConsultantTypeColumns>[] = [
     {
         accessorKey: "createdAt",
         header: "Created At",
-        cell: ({ row }) => {
-            const date = row.getValue("createdAt")
-            return moment(date as Date).format(formatDateSlash)
-        }
     },
     {
         accessorKey: "Action",

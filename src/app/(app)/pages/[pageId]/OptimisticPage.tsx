@@ -10,13 +10,13 @@ import Modal from "@/components/shared/Modal";
 import PageForm from "@/components/pages/PageForm";
 
 
-export default function OptimisticPage({ 
+export default function OptimisticPage({
   page,
-   
-}: { 
-  page: Page; 
-  
-  
+
+}: {
+  page: Page;
+
+
 }) {
   const [open, setOpen] = useState(false);
   const openModal = (_?: Page) => {
@@ -26,13 +26,12 @@ export default function OptimisticPage({
   const [optimisticPage, setOptimisticPage] = useOptimistic(page);
   const updatePage: TAddOptimistic = (input) =>
     setOptimisticPage({ ...input.data });
-
   return (
     <div className="m-4">
       <Modal open={open} setOpen={setOpen}>
         <PageForm
           page={optimisticPage}
-          
+
           closeModal={closeModal}
           openModal={openModal}
           addOptimistic={updatePage}

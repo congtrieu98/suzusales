@@ -96,11 +96,11 @@ const PageForm = ({
 
         const error = editing
           ? await updatePageAction({
-              public: page.public,
-              backgroundColor: page.backgroundColor,
-              ...values,
-              id: page.id,
-            })
+            public: page.public,
+            backgroundColor: page.backgroundColor,
+            ...values,
+            id: page.id,
+          })
           : await createPageAction(values);
 
         const errorFormatted = {
@@ -245,12 +245,12 @@ const PageForm = ({
               addOptimistic && addOptimistic({ action: "delete", data: page });
               const error = await deletePageAction(page.id);
               setIsDeleting(false);
-              const errorFormatted = {
-                error: error ?? "Error",
-                values: page,
-              };
+              // const errorFormatted = {
+              //   error: error ?? "Error",
+              //   values: page,
+              // };
 
-              onSuccess("delete", error ? errorFormatted : undefined);
+              // onSuccess("delete", error ? errorFormatted : undefined);
             });
           }}
         >

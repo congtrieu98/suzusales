@@ -51,7 +51,7 @@ export const updateConsultantAction = async (input: UpdateConsultantParams) => {
 export const deleteConsultantAction = async (input: ConsultantId) => {
   try {
     const payload = consultantIdSchema.parse({ id: input });
-    await deleteConsultant(payload.id);
+    // await deleteConsultant(payload.id);
     revalidateConsultants();
   } catch (e) {
     return handleErrors(e);

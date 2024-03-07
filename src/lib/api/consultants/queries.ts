@@ -4,7 +4,12 @@ import { type ConsultantId, consultantIdSchema } from "@/lib/db/schema/consultan
 
 export const getConsultants = async () => {
   const { session } = await getUserAuth();
-  const c = await db.consultant.findMany({ where: { userId: session?.user.id! } });
+  const c = await db.consultant.findMany({
+    where: { userId: session?.user.id! },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
   return { consultants: c };
 };
 
