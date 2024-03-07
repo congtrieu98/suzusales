@@ -110,7 +110,6 @@ export function DataTable<TData, TValue>({
                                                     //@ts-ignore 
                                                     data: item.original
                                                 });
-                                                // console.log(item)
                                                 //@ts-ignore
                                                 const error = await deleteConsultantAction(item.original.id);
                                                 const errorFormatted = {

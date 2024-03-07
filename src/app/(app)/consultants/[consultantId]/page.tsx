@@ -29,18 +29,19 @@ const Consultant = async ({ id }: { id: string }) => {
   await checkAuth();
 
   const { consultant, contracts } = await getConsultantByIdWithContracts(id);
-  
+
 
   if (!consultant) notFound();
   return (
     <Suspense fallback={<Loading />}>
       <div className="relative">
         <BackButton currentResource="consultants" />
-        <OptimisticConsultant consultant={consultant}  />
+        <OptimisticConsultant consultant={consultant} />
       </div>
       <div className="relative mt-8 mx-4">
         <h3 className="text-xl font-medium mb-4">{consultant.customerName}&apos;s Contracts</h3>
         <ContractList
+          consultant={consultant}
           consultants={[]}
           consultantId={consultant.id}
           contracts={contracts}

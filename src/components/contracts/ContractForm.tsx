@@ -51,7 +51,7 @@ const ContractForm = ({
   const { errors, hasErrors, setErrors, handleChange } =
     useValidatedForm<Contract>(insertContractParams);
   const editing = !!contract?.id;
-  
+
   const [isDeleting, setIsDeleting] = useState(false);
   const [pending, startMutation] = useTransition();
 
@@ -109,7 +109,7 @@ const ContractForm = ({
 
         const errorFormatted = {
           error: error ?? "Error",
-          values: pendingContract 
+          values: pendingContract
         };
         onSuccess(
           editing ? "update" : "create",
@@ -124,9 +124,9 @@ const ContractForm = ({
   };
 
   return (
-    <form action={handleSubmit} onChange={handleChange} className={"space-y-8"}>
+    <form action={handleSubmit} onChange={handleChange} className={""}>
       {/* Schema fields start */}
-              <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
@@ -147,7 +147,7 @@ const ContractForm = ({
           <div className="h-6" />
         )}
       </div>
-        <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
@@ -168,7 +168,7 @@ const ContractForm = ({
           <div className="h-6" />
         )}
       </div>
-        <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
@@ -189,7 +189,7 @@ const ContractForm = ({
           <div className="h-6" />
         )}
       </div>
-        <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
@@ -210,7 +210,7 @@ const ContractForm = ({
           <div className="h-6" />
         )}
       </div>
-        <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
@@ -231,7 +231,7 @@ const ContractForm = ({
           <div className="h-6" />
         )}
       </div>
-        <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
@@ -252,7 +252,7 @@ const ContractForm = ({
           <div className="h-6" />
         )}
       </div>
-        <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
@@ -273,7 +273,7 @@ const ContractForm = ({
           <div className="h-6" />
         )}
       </div>
-        <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
@@ -311,11 +311,11 @@ const ContractForm = ({
             <SelectValue placeholder="Select a consultant" />
           </SelectTrigger>
           <SelectContent>
-          {consultants?.map((consultant) => (
-            <SelectItem key={consultant.id} value={consultant.id.toString()}>
-              {consultant.id}{/* TODO: Replace with a field from the consultant model */}
-            </SelectItem>
-           ))}
+            {consultants?.map((consultant) => (
+              <SelectItem key={consultant.id} value={consultant.id.toString()}>
+                {consultant.id}{/* TODO: Replace with a field from the consultant model */}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         {errors?.consultantId ? (
@@ -323,7 +323,7 @@ const ContractForm = ({
         ) : (
           <div className="h-6" />
         )}
-      </div> }
+      </div>}
       {/* Schema fields end */}
 
       {/* Save Button */}

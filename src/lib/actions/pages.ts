@@ -50,7 +50,7 @@ export const updatePageAction = async (input: UpdatePageParams) => {
 export const deletePageAction = async (input: PageId) => {
   try {
     const payload = pageIdSchema.parse({ id: input });
-    // await deletePage(payload.id);
+    await deletePage(payload.id);
     revalidatePages();
   } catch (e) {
     return handleErrors(e);

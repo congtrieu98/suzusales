@@ -18,15 +18,17 @@ type TOpenModal = (contract?: Contract) => void;
 export default function ContractList({
   contracts,
   consultants,
-  consultantId 
+  consultantId,
+  consultant
 }: {
   contracts: CompleteContract[];
   consultants: Consultant[];
-  consultantId?: ConsultantId 
+  consultantId?: ConsultantId;
+  consultant: Consultant;
 }) {
   const { optimisticContracts, addOptimisticContract } = useOptimisticContracts(
     contracts,
-    consultants 
+    consultants
   );
   const [open, setOpen] = useState(false);
   const [activeContract, setActiveContract] = useState<Contract | null>(null);
@@ -49,16 +51,16 @@ export default function ContractList({
           openModal={openModal}
           closeModal={closeModal}
           consultants={consultants}
-        consultantId={consultantId}
+          consultantId={consultantId}
         />
       </Modal>
-      <div className="absolute right-0 top-0 ">
+      {consultant.status === 'Done' && <div className="absolute right-0 top-0 ">
         <Button onClick={() => openModal()} variant={"outline"}>
           +
         </Button>
-      </div>
+      </div>}
       {optimisticContracts.length === 0 ? (
-        <EmptyState openModal={openModal} />
+        <EmptyState openModal={openModal} statusConsultant={consultant.status} />
       ) : (
         <ul>
           {optimisticContracts.map((contract) => (
@@ -102,7 +104,7 @@ const Contract = ({
         <div>{contract.customerContract}</div>
       </div>
       <Button variant={"link"} asChild>
-        <Link href={ basePath + "/" + contract.id }>
+        <Link href={basePath + "/" + contract.id}>
           Edit
         </Link>
       </Button>
@@ -110,7 +112,7 @@ const Contract = ({
   );
 };
 
-const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
+const EmptyState = ({ openModal, statusConsultant }: { openModal: TOpenModal, statusConsultant: string }) => {
   return (
     <div className="text-center">
       <h3 className="mt-2 text-sm font-semibold text-secondary-foreground">
@@ -119,10 +121,10 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
       <p className="mt-1 text-sm text-muted-foreground">
         Get started by creating a new contract.
       </p>
-      <div className="mt-6">
+      {statusConsultant === 'Done' && <div className="mt-6">
         <Button onClick={() => openModal()}>
           <PlusIcon className="h-4" /> New Contracts </Button>
-      </div>
+      </div>}
     </div>
   );
 };
