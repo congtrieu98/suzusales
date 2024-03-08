@@ -14,10 +14,10 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useBackPath } from "@/components/shared/BackButton";
 
-
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -29,7 +29,10 @@ import {
   deleteContractAction,
   updateContractAction,
 } from "@/lib/actions/contracts";
-import { type Consultant, type ConsultantId } from "@/lib/db/schema/consultants";
+import {
+  type Consultant,
+  type ConsultantId,
+} from "@/lib/db/schema/consultants";
 
 const ContractForm = ({
   consultants,
@@ -42,7 +45,7 @@ const ContractForm = ({
 }: {
   contract?: Contract | null;
   consultants: Consultant[];
-  consultantId?: ConsultantId
+  consultantId?: ConsultantId;
   openModal?: (contract?: Contract) => void;
   closeModal?: () => void;
   addOptimistic?: TAddOptimistic;
@@ -58,10 +61,9 @@ const ContractForm = ({
   const router = useRouter();
   const backpath = useBackPath("contracts");
 
-
   const onSuccess = (
     action: Action,
-    data?: { error: string; values: Contract },
+    data?: { error: string; values: Contract }
   ) => {
     const failed = Boolean(data?.error);
     if (failed) {
@@ -81,7 +83,10 @@ const ContractForm = ({
     setErrors(null);
 
     const payload = Object.fromEntries(data.entries());
-    const contractParsed = await insertContractParams.safeParseAsync({ consultantId, ...payload });
+    const contractParsed = await insertContractParams.safeParseAsync({
+      consultantId,
+      ...payload,
+    });
     if (!contractParsed.success) {
       setErrors(contractParsed?.error.flatten().fieldErrors);
       return;
@@ -98,10 +103,11 @@ const ContractForm = ({
     };
     try {
       startMutation(async () => {
-        addOptimistic && addOptimistic({
-          data: pendingContract,
-          action: editing ? "update" : "create",
-        });
+        addOptimistic &&
+          addOptimistic({
+            data: pendingContract,
+            action: editing ? "update" : "create",
+          });
 
         const error = editing
           ? await updateContractAction({ ...values, id: contract.id })
@@ -109,11 +115,11 @@ const ContractForm = ({
 
         const errorFormatted = {
           error: error ?? "Error",
-          values: pendingContract
+          values: pendingContract,
         };
         onSuccess(
           editing ? "update" : "create",
-          error ? errorFormatted : undefined,
+          error ? errorFormatted : undefined
         );
       });
     } catch (e) {
@@ -130,7 +136,7 @@ const ContractForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.customerContract ? "text-destructive" : "",
+            errors?.customerContract ? "text-destructive" : ""
           )}
         >
           Customer Contract
@@ -138,11 +144,15 @@ const ContractForm = ({
         <Input
           type="text"
           name="customerContract"
-          className={cn(errors?.customerContract ? "ring ring-destructive" : "")}
+          className={cn(
+            errors?.customerContract ? "ring ring-destructive" : ""
+          )}
           defaultValue={contract?.customerContract ?? ""}
         />
         {errors?.customerContract ? (
-          <p className="text-xs text-destructive mt-2">{errors.customerContract[0]}</p>
+          <p className="text-xs text-destructive mt-2">
+            {errors.customerContract[0]}
+          </p>
         ) : (
           <div className="h-6" />
         )}
@@ -151,7 +161,7 @@ const ContractForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.paymentSchedule ? "text-destructive" : "",
+            errors?.paymentSchedule ? "text-destructive" : ""
           )}
         >
           Payment Schedule
@@ -163,7 +173,9 @@ const ContractForm = ({
           defaultValue={contract?.paymentSchedule ?? ""}
         />
         {errors?.paymentSchedule ? (
-          <p className="text-xs text-destructive mt-2">{errors.paymentSchedule[0]}</p>
+          <p className="text-xs text-destructive mt-2">
+            {errors.paymentSchedule[0]}
+          </p>
         ) : (
           <div className="h-6" />
         )}
@@ -172,7 +184,7 @@ const ContractForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.scanContract ? "text-destructive" : "",
+            errors?.scanContract ? "text-destructive" : ""
           )}
         >
           Scan Contract
@@ -184,7 +196,9 @@ const ContractForm = ({
           defaultValue={contract?.scanContract ?? ""}
         />
         {errors?.scanContract ? (
-          <p className="text-xs text-destructive mt-2">{errors.scanContract[0]}</p>
+          <p className="text-xs text-destructive mt-2">
+            {errors.scanContract[0]}
+          </p>
         ) : (
           <div className="h-6" />
         )}
@@ -193,7 +207,7 @@ const ContractForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.finalContract ? "text-destructive" : "",
+            errors?.finalContract ? "text-destructive" : ""
           )}
         >
           Final Contract
@@ -205,7 +219,9 @@ const ContractForm = ({
           defaultValue={contract?.finalContract ?? ""}
         />
         {errors?.finalContract ? (
-          <p className="text-xs text-destructive mt-2">{errors.finalContract[0]}</p>
+          <p className="text-xs text-destructive mt-2">
+            {errors.finalContract[0]}
+          </p>
         ) : (
           <div className="h-6" />
         )}
@@ -214,7 +230,7 @@ const ContractForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.customerAddress ? "text-destructive" : "",
+            errors?.customerAddress ? "text-destructive" : ""
           )}
         >
           Customer Address
@@ -226,7 +242,9 @@ const ContractForm = ({
           defaultValue={contract?.customerAddress ?? ""}
         />
         {errors?.customerAddress ? (
-          <p className="text-xs text-destructive mt-2">{errors.customerAddress[0]}</p>
+          <p className="text-xs text-destructive mt-2">
+            {errors.customerAddress[0]}
+          </p>
         ) : (
           <div className="h-6" />
         )}
@@ -235,7 +253,7 @@ const ContractForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.note ? "text-destructive" : "",
+            errors?.note ? "text-destructive" : ""
           )}
         >
           Note
@@ -256,17 +274,23 @@ const ContractForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.status ? "text-destructive" : "",
+            errors?.status ? "text-destructive" : ""
           )}
         >
           Status
         </Label>
-        <Input
-          type="text"
-          name="status"
-          className={cn(errors?.status ? "ring ring-destructive" : "")}
-          defaultValue={contract?.status ?? ""}
-        />
+        <Select name="status" defaultValue={contract?.status ?? "Reviewing"}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="Reviewing">Reviewing</SelectItem>
+              <SelectItem value="Done">Done</SelectItem>
+              <SelectItem value="Cancel">Cancel</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
         {errors?.status ? (
           <p className="text-xs text-destructive mt-2">{errors.status[0]}</p>
         ) : (
@@ -277,7 +301,7 @@ const ContractForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.checkSteps ? "text-destructive" : "",
+            errors?.checkSteps ? "text-destructive" : ""
           )}
         >
           Check Steps
@@ -289,41 +313,53 @@ const ContractForm = ({
           defaultValue={contract?.checkSteps ?? ""}
         />
         {errors?.checkSteps ? (
-          <p className="text-xs text-destructive mt-2">{errors.checkSteps[0]}</p>
+          <p className="text-xs text-destructive mt-2">
+            {errors.checkSteps[0]}
+          </p>
         ) : (
           <div className="h-6" />
         )}
       </div>
 
-      {consultantId ? null : <div>
-        <Label
-          className={cn(
-            "mb-2 inline-block",
-            errors?.consultantId ? "text-destructive" : "",
-          )}
-        >
-          Consultant
-        </Label>
-        <Select defaultValue={contract?.consultantId} name="consultantId">
-          <SelectTrigger
-            className={cn(errors?.consultantId ? "ring ring-destructive" : "")}
+      {consultantId ? null : (
+        <div>
+          <Label
+            className={cn(
+              "mb-2 inline-block",
+              errors?.consultantId ? "text-destructive" : ""
+            )}
           >
-            <SelectValue placeholder="Select a consultant" />
-          </SelectTrigger>
-          <SelectContent>
-            {consultants?.map((consultant) => (
-              <SelectItem key={consultant.id} value={consultant.id.toString()}>
-                {consultant.id}{/* TODO: Replace with a field from the consultant model */}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {errors?.consultantId ? (
-          <p className="text-xs text-destructive mt-2">{errors.consultantId[0]}</p>
-        ) : (
-          <div className="h-6" />
-        )}
-      </div>}
+            Consultant
+          </Label>
+          <Select defaultValue={contract?.consultantId} name="consultantId">
+            <SelectTrigger
+              className={cn(
+                errors?.consultantId ? "ring ring-destructive" : ""
+              )}
+            >
+              <SelectValue placeholder="Select a consultant" />
+            </SelectTrigger>
+            <SelectContent>
+              {consultants?.map((consultant) => (
+                <SelectItem
+                  key={consultant.id}
+                  value={consultant.id.toString()}
+                >
+                  {consultant.id}
+                  {/* TODO: Replace with a field from the consultant model */}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors?.consultantId ? (
+            <p className="text-xs text-destructive mt-2">
+              {errors.consultantId[0]}
+            </p>
+          ) : (
+            <div className="h-6" />
+          )}
+        </div>
+      )}
       {/* Schema fields end */}
 
       {/* Save Button */}
@@ -339,7 +375,8 @@ const ContractForm = ({
             setIsDeleting(true);
             closeModal && closeModal();
             startMutation(async () => {
-              addOptimistic && addOptimistic({ action: "delete", data: contract });
+              addOptimistic &&
+                addOptimistic({ action: "delete", data: contract });
               const error = await deleteContractAction(contract.id);
               setIsDeleting(false);
               const errorFormatted = {

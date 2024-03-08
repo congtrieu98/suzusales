@@ -114,18 +114,18 @@ const ConsultantForm = ({
 
         const error = editing
           ? await updateConsultantAction({
-            ...values,
-            id: consultant.id,
-            airDate: consultant?.airDate
-              ? consultant?.airDate
-              : moment(airDate).toDate(),
-            creator: session?.user.name as string,
-          })
+              ...values,
+              id: consultant.id,
+              airDate: consultant?.airDate
+                ? consultant?.airDate
+                : moment(airDate).toDate(),
+              creator: session?.user.name as string,
+            })
           : await createConsultantAction({
-            ...values,
-            airDate: moment(airDate).toDate(),
-            creator: session?.user.name as string,
-          });
+              ...values,
+              airDate: moment(airDate).toDate(),
+              creator: session?.user.name as string,
+            });
 
         const errorFormatted = {
           error: error ?? "Error",
@@ -255,7 +255,7 @@ const ConsultantForm = ({
         >
           Status
         </Label>
-        <Select name="status" defaultValue="Reviewing">
+        <Select name="status" defaultValue={consultant?.status ?? "Reviewing"}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select status" />
           </SelectTrigger>

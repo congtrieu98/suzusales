@@ -37,21 +37,18 @@ export default function ConsultantList({
     consultant ? setActiveConsultant(consultant) : setActiveConsultant(null);
   };
   const closeModal = () => setOpen(false);
-  const optimisticConsultantsCustom = optimisticConsultants.map(item => (
-    {
-      id: item.id,
-      customerName: item.customerName,
-      projectName: item.projectName,
-      content: item.content,
-      airDate: item.airDate,
-      status: item.status,
-      creator: item.creator,
-      userId: item.userId,
-      createdAt: moment(item.createdAt).format(formatDateSlash),
-      updatedAt: item.updatedAt
-
-    }
-  ))
+  const optimisticConsultantsCustom = optimisticConsultants.map((item) => ({
+    id: item.id,
+    customerName: item.customerName,
+    projectName: item.projectName,
+    content: item.content,
+    airDate: item.airDate,
+    status: item.status,
+    creator: item.creator,
+    userId: item.userId,
+    createdAt: moment(item.createdAt).format(formatDateSlash),
+    updatedAt: item.updatedAt,
+  }));
 
   return (
     <div>
@@ -85,11 +82,11 @@ export default function ConsultantList({
         //   ))}
         // </ul>
         <div className="container mx-auto py-10">
-
           <DataTable
             columns={columns}
             //@ts-ignore
-            data={optimisticConsultantsCustom} />
+            data={optimisticConsultantsCustom}
+          />
         </div>
       )}
     </div>
