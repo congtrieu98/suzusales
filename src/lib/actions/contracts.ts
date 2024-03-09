@@ -12,6 +12,7 @@ import {
   UpdateContractParams,
   contractIdSchema,
   insertContractParams,
+  insertContractParamsCustom,
   updateContractParams,
 } from "@/lib/db/schema/contracts";
 
@@ -29,7 +30,7 @@ const revalidateContracts = () => revalidatePath("/contracts");
 
 export const createContractAction = async (input: NewContractParams) => {
   try {
-    const payload = insertContractParams.parse(input);
+    const payload = insertContractParamsCustom.parse(input);
     await createContract(payload);
     revalidateContracts();
   } catch (e) {

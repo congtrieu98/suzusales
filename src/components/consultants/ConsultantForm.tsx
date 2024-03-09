@@ -88,7 +88,6 @@ const ConsultantForm = ({
       ...payload,
     });
     if (!consultantParsed.success) {
-      console.log("consultantParsed:", consultantParsed);
       setErrors(consultantParsed?.error.flatten().fieldErrors);
       return;
     }
@@ -114,18 +113,18 @@ const ConsultantForm = ({
 
         const error = editing
           ? await updateConsultantAction({
-              ...values,
-              id: consultant.id,
-              airDate: consultant?.airDate
-                ? consultant?.airDate
-                : moment(airDate).toDate(),
-              creator: session?.user.name as string,
-            })
+            ...values,
+            id: consultant.id,
+            airDate: consultant?.airDate
+              ? consultant?.airDate
+              : moment(airDate).toDate(),
+            creator: session?.user.name as string,
+          })
           : await createConsultantAction({
-              ...values,
-              airDate: moment(airDate).toDate(),
-              creator: session?.user.name as string,
-            });
+            ...values,
+            airDate: moment(airDate).toDate(),
+            creator: session?.user.name as string,
+          });
 
         const errorFormatted = {
           error: error ?? "Error",

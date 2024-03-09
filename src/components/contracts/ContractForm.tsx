@@ -33,6 +33,7 @@ import {
   type Consultant,
   type ConsultantId,
 } from "@/lib/db/schema/consultants";
+import { Checkbox } from "../ui/checkbox";
 
 const ContractForm = ({
   consultants,
@@ -57,6 +58,15 @@ const ContractForm = ({
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [pending, startMutation] = useTransition();
+  const [step, setStep] = useState<string[]>([])
+  const [inputValues, setInputValues] = useState({
+    customerContract: '',
+    paymentSchedule: '',
+    scanContract: '',
+    finalContract: '',
+    customerAddress: ''
+  });
+
 
   const router = useRouter();
   const backpath = useBackPath("contracts");
@@ -79,6 +89,30 @@ const ContractForm = ({
     }
   };
 
+  const handleInputChange = (event: { target: { name: string; value: string; }; }) => {
+    const { name, value } = event.target;
+
+    setInputValues({
+      ...inputValues,
+      [name]: value
+    });
+
+    if (value === '') {
+      setStep(prevStep => prevStep.filter(item => item !== name));
+      setInputValues({
+        ...inputValues,
+        [name]: ''
+      });
+    }
+    else {
+      if (!step.includes(name)) {
+        setStep(prevStep => [...prevStep, name]);
+      }
+    }
+  };
+  console.log("step:", step)
+
+
   const handleSubmit = async (data: FormData) => {
     setErrors(null);
 
@@ -99,6 +133,7 @@ const ContractForm = ({
       createdAt: contract?.createdAt ?? new Date(),
       id: contract?.id ?? "",
       userId: contract?.userId ?? "",
+      checkSteps: step,
       ...values,
     };
     try {
@@ -110,8 +145,8 @@ const ContractForm = ({
           });
 
         const error = editing
-          ? await updateContractAction({ ...values, id: contract.id })
-          : await createContractAction(values);
+          ? await updateContractAction({ ...values, checkSteps: step, id: contract.id })
+          : await createContractAction({ ...values, checkSteps: step });
 
         const errorFormatted = {
           error: error ?? "Error",
@@ -133,9 +168,17 @@ const ContractForm = ({
     <form action={handleSubmit} onChange={handleChange} className={""}>
       {/* Schema fields start */}
       <div>
+        <Checkbox
+          checked={step?.includes('customerContract')}
+        // onCheckedChange={(checked) => {
+        //   console.log("checked:", checked)
+        //   return !checked ? setStep(prevStep => prevStep.filter(item => item !== 'customerContract')) :
+        //     setStep(prevStep => [...prevStep, 'customerContract']);
+        // }}
+        />
         <Label
           className={cn(
-            "mb-2 inline-block",
+            "ml-2 mb-2 inline-block",
             errors?.customerContract ? "text-destructive" : ""
           )}
         >
@@ -144,6 +187,7 @@ const ContractForm = ({
         <Input
           type="text"
           name="customerContract"
+          onChange={(e) => handleInputChange(e)}
           className={cn(
             errors?.customerContract ? "ring ring-destructive" : ""
           )}
@@ -158,9 +202,13 @@ const ContractForm = ({
         )}
       </div>
       <div>
+        <Checkbox
+          checked={step?.includes('paymentSchedule')}
+        // onCheckedChange={() => handleInputChange}
+        />
         <Label
           className={cn(
-            "mb-2 inline-block",
+            "ml-2 mb-2 inline-block",
             errors?.paymentSchedule ? "text-destructive" : ""
           )}
         >
@@ -169,6 +217,7 @@ const ContractForm = ({
         <Input
           type="text"
           name="paymentSchedule"
+          onChange={(e) => handleInputChange(e)}
           className={cn(errors?.paymentSchedule ? "ring ring-destructive" : "")}
           defaultValue={contract?.paymentSchedule ?? ""}
         />
@@ -181,9 +230,13 @@ const ContractForm = ({
         )}
       </div>
       <div>
+        <Checkbox
+          checked={step?.includes('scanContract')}
+        // onCheckedChange={() => handleInputChange}
+        />
         <Label
           className={cn(
-            "mb-2 inline-block",
+            "ml-2 mb-2 inline-block",
             errors?.scanContract ? "text-destructive" : ""
           )}
         >
@@ -192,6 +245,7 @@ const ContractForm = ({
         <Input
           type="text"
           name="scanContract"
+          onChange={(e) => handleInputChange(e)}
           className={cn(errors?.scanContract ? "ring ring-destructive" : "")}
           defaultValue={contract?.scanContract ?? ""}
         />
@@ -204,9 +258,13 @@ const ContractForm = ({
         )}
       </div>
       <div>
+        <Checkbox
+          checked={step?.includes('finalContract')}
+        // onCheckedChange={() => handleInputChange}
+        />
         <Label
           className={cn(
-            "mb-2 inline-block",
+            "ml-2 mb-2 inline-block",
             errors?.finalContract ? "text-destructive" : ""
           )}
         >
@@ -215,6 +273,7 @@ const ContractForm = ({
         <Input
           type="text"
           name="finalContract"
+          onChange={(e) => handleInputChange(e)}
           className={cn(errors?.finalContract ? "ring ring-destructive" : "")}
           defaultValue={contract?.finalContract ?? ""}
         />
@@ -227,9 +286,13 @@ const ContractForm = ({
         )}
       </div>
       <div>
+        <Checkbox
+          checked={step?.includes('customerAddress')}
+        // onCheckedChange={() => handleInputChange}
+        />
         <Label
           className={cn(
-            "mb-2 inline-block",
+            "ml-2 mb-2 inline-block",
             errors?.customerAddress ? "text-destructive" : ""
           )}
         >
@@ -238,6 +301,7 @@ const ContractForm = ({
         <Input
           type="text"
           name="customerAddress"
+          onChange={(e) => handleInputChange(e)}
           className={cn(errors?.customerAddress ? "ring ring-destructive" : "")}
           defaultValue={contract?.customerAddress ?? ""}
         />
@@ -279,15 +343,14 @@ const ContractForm = ({
         >
           Status
         </Label>
-        <Select name="status" defaultValue={contract?.status ?? "Reviewing"}>
+        <Select name="status" defaultValue={contract?.status ?? "Inprogress"}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem value="Reviewing">Reviewing</SelectItem>
+              <SelectItem value="Inprogress">Inprogress</SelectItem>
               <SelectItem value="Done">Done</SelectItem>
-              <SelectItem value="Cancel">Cancel</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -297,21 +360,30 @@ const ContractForm = ({
           <div className="h-6" />
         )}
       </div>
-      <div>
-        <Label
-          className={cn(
-            "mb-2 inline-block",
-            errors?.checkSteps ? "text-destructive" : ""
-          )}
-        >
-          Check Steps
-        </Label>
-        <Input
+      <div className="mb-4">
+        <div className="flex space-x-2">
+          <Checkbox
+            name="checkSteps"
+            value={step}
+            checked={step.length === 5}
+          // onCheckedChange={() => handleInputChange}
+          />
+          <Label
+            className={cn(
+              "mb-2 inline-block",
+              errors?.checkSteps ? "text-destructive" : ""
+            )}
+          >
+            Check all
+          </Label>
+        </div>
+
+        {/* <Input
           type="text"
           name="checkSteps"
           className={cn(errors?.checkSteps ? "ring ring-destructive" : "")}
           defaultValue={contract?.checkSteps ?? ""}
-        />
+        /> */}
         {errors?.checkSteps ? (
           <p className="text-xs text-destructive mt-2">
             {errors.checkSteps[0]}

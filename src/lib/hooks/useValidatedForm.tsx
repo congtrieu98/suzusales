@@ -18,20 +18,20 @@ export function useValidatedForm<Entity>(insertEntityZodSchema: ZodSchema) {
       target instanceof HTMLSelectElement ||
       target instanceof HTMLTextAreaElement
     ) {
-      if (!(target instanceof HTMLInputElement && target.type === "submit")) {
-        const field = target.name as keyof Entity;
-        const result = insertEntityZodSchema.safeParse({
-          [field]: target.value,
-        });
-        const fieldError = result.success
-          ? undefined
-          : result.error.flatten().fieldErrors[field];
+      // if (!(target instanceof HTMLInputElement && target.type === "submit")) {
+      //   const field = target.name as keyof Entity;
+      //   const result = insertEntityZodSchema.safeParse({
+      //     [field]: target.value,
+      //   });
+      //   const fieldError = result.success
+      //     ? undefined
+      //     : result.error.flatten().fieldErrors[field];
 
-        setErrors((prev) => ({
-          ...prev,
-          [field]: fieldError,
-        }));
-      }
+      //   setErrors((prev) => ({
+      //     ...prev,
+      //     [field]: fieldError,
+      //   }));
+      // }
     }
   };
   return { errors, setErrors, handleChange, hasErrors };
