@@ -28,7 +28,7 @@ const Contracts = async () => {
   const { consultants } = await getConsultants();
   return (
     <Suspense fallback={<Loading />}>
-      <ContractList contracts={contracts} consultants={consultants} />
+      {/* <ContractList contracts={contracts} consultants={consultants} /> */}
     </Suspense>
   );
 };

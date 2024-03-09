@@ -19,12 +19,12 @@ export default function ContractList({
   contracts,
   consultants,
   consultantId,
-  consultant
+  consultantStatus
 }: {
   contracts: CompleteContract[];
   consultants: Consultant[];
   consultantId?: ConsultantId;
-  consultant: Consultant;
+  consultantStatus: string
 }) {
   const { optimisticContracts, addOptimisticContract } = useOptimisticContracts(
     contracts,
@@ -54,13 +54,16 @@ export default function ContractList({
           consultantId={consultantId}
         />
       </Modal>
-      {consultant.status === 'Done' && <div className="absolute right-0 top-0 ">
-        <Button onClick={() => openModal()} variant={"outline"}>
-          +
-        </Button>
-      </div>}
+      {
+        consultantStatus === 'Done' &&
+        <div className="absolute right-0 top-0 ">
+          <Button onClick={() => openModal()} variant={"outline"}>
+            +
+          </Button>
+        </div>
+      }
       {optimisticContracts.length === 0 ? (
-        <EmptyState openModal={openModal} statusConsultant={consultant.status} />
+        <EmptyState openModal={openModal} consultantStatus={consultantStatus} />
       ) : (
         <ul>
           {optimisticContracts.map((contract) => (
@@ -112,7 +115,7 @@ const Contract = ({
   );
 };
 
-const EmptyState = ({ openModal, statusConsultant }: { openModal: TOpenModal, statusConsultant: string }) => {
+const EmptyState = ({ openModal, consultantStatus }: { openModal: TOpenModal, consultantStatus: string }) => {
   return (
     <div className="text-center">
       <h3 className="mt-2 text-sm font-semibold text-secondary-foreground">
@@ -121,10 +124,13 @@ const EmptyState = ({ openModal, statusConsultant }: { openModal: TOpenModal, st
       <p className="mt-1 text-sm text-muted-foreground">
         Get started by creating a new contract.
       </p>
-      {statusConsultant === 'Done' && <div className="mt-6">
-        <Button onClick={() => openModal()}>
-          <PlusIcon className="h-4" /> New Contracts </Button>
-      </div>}
+      {
+        consultantStatus === 'Done' &&
+        <div className="mt-6">
+          <Button onClick={() => openModal()}>
+            <PlusIcon className="h-4" /> New Contracts </Button>
+        </div>
+      }
     </div>
   );
 };
