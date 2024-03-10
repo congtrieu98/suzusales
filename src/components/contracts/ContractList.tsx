@@ -104,13 +104,24 @@ const Contract = ({
       )}
     >
       <div className="w-full">
-        <div>{contract.customerContract}</div>
+        <div>
+          {/* <Link href={contract.customerContract} legacyBehavior >
+            <a target="_blank" rel="noopener noreferrer">
+              Contract details
+            </a>
+          </Link> */}
+          <Button variant={"link"} asChild>
+            <Link href={basePath + "/" + contract.id}>
+              Contract details
+            </Link>
+          </Button>
+        </div>
       </div>
-      <Button variant={"link"} asChild>
+      {/* <Button variant={"link"} asChild>
         <Link href={basePath + "/" + contract.id}>
           Edit
         </Link>
-      </Button>
+      </Button> */}
     </li>
   );
 };

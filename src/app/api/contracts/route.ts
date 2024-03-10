@@ -7,15 +7,15 @@ import {
   deleteContract,
   updateContract,
 } from "@/lib/api/contracts/mutations";
-import { 
+import {
   contractIdSchema,
-  insertContractParams,
-  updateContractParams 
+  insertContractParamsCustom,
+  updateContractParams
 } from "@/lib/db/schema/contracts";
 
 export async function POST(req: Request) {
   try {
-    const validatedData = insertContractParams.parse(await req.json());
+    const validatedData = insertContractParamsCustom.parse(await req.json());
     const { contract } = await createContract(validatedData);
 
     revalidatePath("/contracts"); // optional - assumes you will have named route same as entity

@@ -59,13 +59,13 @@ const ContractForm = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [pending, startMutation] = useTransition();
   const [step, setStep] = useState<string[]>([])
-  const [inputValues, setInputValues] = useState({
-    customerContract: '',
-    paymentSchedule: '',
-    scanContract: '',
-    finalContract: '',
-    customerAddress: ''
-  });
+  // const [inputValues, setInputValues] = useState({
+  //   customerContract: '',
+  //   paymentSchedule: '',
+  //   scanContract: '',
+  //   finalContract: '',
+  //   customerAddress: ''
+  // });
 
 
   const router = useRouter();
@@ -89,28 +89,28 @@ const ContractForm = ({
     }
   };
 
-  const handleInputChange = (event: { target: { name: string; value: string; }; }) => {
-    const { name, value } = event.target;
+  // const handleInputChange = (event: { target: { name: string; value: string; }; }) => {
+  //   const { name, value } = event.target;
 
-    setInputValues({
-      ...inputValues,
-      [name]: value
-    });
+  //   setInputValues({
+  //     ...inputValues,
+  //     [name]: value
+  //   });
 
-    if (value === '') {
-      setStep(prevStep => prevStep.filter(item => item !== name));
-      setInputValues({
-        ...inputValues,
-        [name]: ''
-      });
-    }
-    else {
-      if (!step.includes(name)) {
-        setStep(prevStep => [...prevStep, name]);
-      }
-    }
-  };
-  console.log("step:", step)
+  //   if (value === '') {
+  //     setStep(prevStep => prevStep.filter(item => item !== name));
+  //     setInputValues({
+  //       ...inputValues,
+  //       [name]: ''
+  //     });
+  //   }
+  //   else {
+  //     if (!step.includes(name)) {
+  //       setStep(prevStep => [...prevStep, name]);
+  //     }
+  //   }
+  // };
+  // console.log("step:", step)
 
 
   const handleSubmit = async (data: FormData) => {
@@ -169,12 +169,11 @@ const ContractForm = ({
       {/* Schema fields start */}
       <div>
         <Checkbox
-          checked={step?.includes('customerContract')}
-        // onCheckedChange={(checked) => {
-        //   console.log("checked:", checked)
-        //   return !checked ? setStep(prevStep => prevStep.filter(item => item !== 'customerContract')) :
-        //     setStep(prevStep => [...prevStep, 'customerContract']);
-        // }}
+          checked={contract?.checkSteps.includes('customerContract') ? contract?.checkSteps.includes('customerContract') : step?.includes('customerContract')}
+          onCheckedChange={(checked) => {
+            return !checked ? setStep(prevStep => prevStep.filter(item => item !== 'customerContract')) :
+              setStep(prevStep => [...prevStep, 'customerContract']);
+          }}
         />
         <Label
           className={cn(
@@ -187,7 +186,7 @@ const ContractForm = ({
         <Input
           type="text"
           name="customerContract"
-          onChange={(e) => handleInputChange(e)}
+          // onChange={(e) => handleInputChange(e)}
           className={cn(
             errors?.customerContract ? "ring ring-destructive" : ""
           )}
@@ -203,8 +202,11 @@ const ContractForm = ({
       </div>
       <div>
         <Checkbox
-          checked={step?.includes('paymentSchedule')}
-        // onCheckedChange={() => handleInputChange}
+          checked={contract?.checkSteps.includes('paymentSchedule') ? contract?.checkSteps.includes('paymentSchedule') : step?.includes('paymentSchedule')}
+          onCheckedChange={(checked) => {
+            return !checked ? setStep(prevStep => prevStep.filter(item => item !== 'paymentSchedule')) :
+              setStep(prevStep => [...prevStep, 'paymentSchedule']);
+          }}
         />
         <Label
           className={cn(
@@ -217,7 +219,7 @@ const ContractForm = ({
         <Input
           type="text"
           name="paymentSchedule"
-          onChange={(e) => handleInputChange(e)}
+          // onChange={(e) => handleInputChange(e)}
           className={cn(errors?.paymentSchedule ? "ring ring-destructive" : "")}
           defaultValue={contract?.paymentSchedule ?? ""}
         />
@@ -231,8 +233,11 @@ const ContractForm = ({
       </div>
       <div>
         <Checkbox
-          checked={step?.includes('scanContract')}
-        // onCheckedChange={() => handleInputChange}
+          checked={contract?.checkSteps.includes('scanContract') ? contract?.checkSteps.includes('scanContract') : step?.includes('scanContract')}
+          onCheckedChange={(checked) => {
+            return !checked ? setStep(prevStep => prevStep.filter(item => item !== 'scanContract')) :
+              setStep(prevStep => [...prevStep, 'scanContract']);
+          }}
         />
         <Label
           className={cn(
@@ -245,7 +250,7 @@ const ContractForm = ({
         <Input
           type="text"
           name="scanContract"
-          onChange={(e) => handleInputChange(e)}
+          // onChange={(e) => handleInputChange(e)}
           className={cn(errors?.scanContract ? "ring ring-destructive" : "")}
           defaultValue={contract?.scanContract ?? ""}
         />
@@ -259,8 +264,11 @@ const ContractForm = ({
       </div>
       <div>
         <Checkbox
-          checked={step?.includes('finalContract')}
-        // onCheckedChange={() => handleInputChange}
+          checked={contract?.checkSteps.includes('finalContract') ? contract?.checkSteps.includes('finalContract') : step?.includes('finalContract')}
+          onCheckedChange={(checked) => {
+            return !checked ? setStep(prevStep => prevStep.filter(item => item !== 'finalContract')) :
+              setStep(prevStep => [...prevStep, 'finalContract']);
+          }}
         />
         <Label
           className={cn(
@@ -273,7 +281,7 @@ const ContractForm = ({
         <Input
           type="text"
           name="finalContract"
-          onChange={(e) => handleInputChange(e)}
+          // onChange={(e) => handleInputChange(e)}
           className={cn(errors?.finalContract ? "ring ring-destructive" : "")}
           defaultValue={contract?.finalContract ?? ""}
         />
@@ -287,8 +295,11 @@ const ContractForm = ({
       </div>
       <div>
         <Checkbox
-          checked={step?.includes('customerAddress')}
-        // onCheckedChange={() => handleInputChange}
+          checked={contract?.checkSteps.includes('customerAddress') ? contract?.checkSteps.includes('customerAddress') : step?.includes('customerAddress')}
+          onCheckedChange={(checked) => {
+            return !checked ? setStep(prevStep => prevStep.filter(item => item !== 'customerAddress')) :
+              setStep(prevStep => [...prevStep, 'customerAddress']);
+          }}
         />
         <Label
           className={cn(
@@ -301,7 +312,7 @@ const ContractForm = ({
         <Input
           type="text"
           name="customerAddress"
-          onChange={(e) => handleInputChange(e)}
+          // onChange={(e) => handleInputChange(e)}
           className={cn(errors?.customerAddress ? "ring ring-destructive" : "")}
           defaultValue={contract?.customerAddress ?? ""}
         />
@@ -364,9 +375,20 @@ const ContractForm = ({
         <div className="flex space-x-2">
           <Checkbox
             name="checkSteps"
-            value={step}
-            checked={step.length === 5}
-          // onCheckedChange={() => handleInputChange}
+            checked={editing ? (contract?.checkSteps.concat(step))?.length === 5 : step.length === 5}
+            onCheckedChange={(checked) => {
+              if (checked) {
+                const fullSteps = ['paymentSchedule', 'customerContract', 'scanContract', 'finalContract', 'customerAddress'];
+                if (editing ? contract?.checkSteps?.length === 0 : step?.length === 0) {
+                  setStep(fullSteps)
+                } else {
+                  const missingSteps = fullSteps.filter(stepItem => editing ? !contract?.checkSteps.includes(stepItem) : !step.includes(stepItem));
+                  setStep(prevStep => [...prevStep, ...missingSteps]);
+                }
+              } else {
+                setStep([])
+              }
+            }}
           />
           <Label
             className={cn(
@@ -378,12 +400,6 @@ const ContractForm = ({
           </Label>
         </div>
 
-        {/* <Input
-          type="text"
-          name="checkSteps"
-          className={cn(errors?.checkSteps ? "ring ring-destructive" : "")}
-          defaultValue={contract?.checkSteps ?? ""}
-        /> */}
         {errors?.checkSteps ? (
           <p className="text-xs text-destructive mt-2">
             {errors.checkSteps[0]}
