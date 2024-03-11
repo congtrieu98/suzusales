@@ -1,9 +1,14 @@
 import { type Consultant } from "@/lib/db/schema/consultants";
-import { type Contract, type CompleteContract } from "@/lib/db/schema/contracts";
+import {
+  type Contract,
+  type CompleteContract,
+} from "@/lib/db/schema/contracts";
 import { OptimisticAction } from "@/lib/utils";
 import { useOptimistic } from "react";
 
-export type TAddOptimistic = (action: OptimisticAction<Contract>) => void;
+export type TAddOptimistic = (
+  action: OptimisticAction<CompleteContract>
+) => void;
 
 export const useOptimisticContracts = (
   contracts: CompleteContract[],
@@ -13,12 +18,12 @@ export const useOptimisticContracts = (
     contracts,
     (
       currentState: CompleteContract[],
-      action: OptimisticAction<Contract>,
+      action: OptimisticAction<Contract>
     ): CompleteContract[] => {
       const { data } = action;
 
       const optimisticConsultant = consultants.find(
-        (consultant) => consultant.id === data.consultantId,
+        (consultant) => consultant.id === data.consultantId
       )!;
 
       const optimisticContract = {
@@ -34,16 +39,16 @@ export const useOptimisticContracts = (
             : [...currentState, optimisticContract];
         case "update":
           return currentState.map((item) =>
-            item.id === data.id ? { ...item, ...optimisticContract } : item,
+            item.id === data.id ? { ...item, ...optimisticContract } : item
           );
         case "delete":
           return currentState.map((item) =>
-            item.id === data.id ? { ...item, id: "delete" } : item,
+            item.id === data.id ? { ...item, id: "delete" } : item
           );
         default:
           return currentState;
       }
-    },
+    }
   );
 
   return { addOptimisticContract, optimisticContracts };

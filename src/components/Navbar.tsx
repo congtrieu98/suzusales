@@ -11,17 +11,29 @@ import { additionalLinks } from "@/config/nav";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
+import Image from "next/image";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const { data: session } = useSession()
-  const additionalLinksCustom = additionalLinks.filter(addLinCustom => addLinCustom.links)
+  const { data: session } = useSession();
+  const additionalLinksCustom = additionalLinks.filter(
+    (addLinCustom) => addLinCustom.links
+  );
 
   return (
     <div className="md:hidden border-b mb-4 pb-2 w-full">
       <nav className="flex justify-between w-full items-center">
-        <div className="font-semibold text-lg">Logo</div>
+        <div className="">
+          <Link href={"/"}>
+            <Image
+              width={60}
+              height={60}
+              src={"/assets/favicon.png"}
+              alt="logo"
+            />
+          </Link>
+        </div>
         <Button variant="ghost" onClick={() => setOpen(!open)}>
           <AlignRight />
         </Button>
@@ -32,16 +44,21 @@ export default function Navbar() {
             <ul className="space-y-2 pb-4">
               <li
                 onClick={() => setOpen(false)}
-                className={pathname === '/dashboard'
-                  ? "text-primary hover:text-primary font-semibold cursor-pointer"
-                  : "text-muted-foreground hover:text-primary cursor-pointer"} >
-                <Link href={'/dashboard'}>
-                  Home
-                </Link>
+                className={
+                  pathname === "/dashboard"
+                    ? "text-primary hover:text-primary font-semibold cursor-pointer"
+                    : "text-muted-foreground hover:text-primary cursor-pointer"
+                }
+              >
+                <Link href={"/dashboard"}>Home</Link>
               </li>
 
               {additionalLinksCustom[0].links.map((link) => (
-                <li key={link.title} onClick={() => setOpen(false)} className="">
+                <li
+                  key={link.title}
+                  onClick={() => setOpen(false)}
+                  className=""
+                >
                   <Link
                     href={link.href as string}
                     className={
@@ -56,23 +73,26 @@ export default function Navbar() {
               ))}
             </ul>
             <div>
-              <Link href={'/settings'}>
+              <Link href={"/settings"}>
                 <Settings onClick={() => setOpen(false)} size={18} />
               </Link>
             </div>
           </div>
 
-          <UserDetails
-            session={session as Session}
-            setOpen={setOpen}
-          />
+          <UserDetails session={session as Session} setOpen={setOpen} />
         </div>
       ) : null}
     </div>
   );
 }
 
-const UserDetails = ({ session, setOpen }: { session: Session, setOpen: Dispatch<SetStateAction<boolean>> }) => {
+const UserDetails = ({
+  session,
+  setOpen,
+}: {
+  session: Session;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+}) => {
   if (session.user === null) return null;
   const { user } = session;
 
@@ -82,7 +102,8 @@ const UserDetails = ({ session, setOpen }: { session: Session, setOpen: Dispatch
     <Link href="/account">
       <div
         onClick={() => setOpen(false)}
-        className="flex items-center justify-between w-full border-t border-border pt-4">
+        className="flex items-center justify-between w-full border-t border-border pt-4"
+      >
         <div className="text-muted-foreground">
           <p className="text-xs">{user.name ?? "John Doe"}</p>
           <p className="text-xs font-light pr-4">
@@ -94,9 +115,9 @@ const UserDetails = ({ session, setOpen }: { session: Session, setOpen: Dispatch
           <AvatarFallback className="border-border border-2 text-muted-foreground">
             {user.name
               ? user.name
-                ?.split(" ")
-                .map((word: any) => word[0].toUpperCase())
-                .join("")
+                  ?.split(" ")
+                  .map((word: any) => word[0].toUpperCase())
+                  .join("")
               : "~"}
           </AvatarFallback>
         </Avatar>
@@ -104,4 +125,3 @@ const UserDetails = ({ session, setOpen }: { session: Session, setOpen: Dispatch
     </Link>
   );
 };
-

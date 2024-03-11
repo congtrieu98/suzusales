@@ -7,7 +7,10 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { type Contract, CompleteContract } from "@/lib/db/schema/contracts";
 import Modal from "@/components/shared/Modal";
-import { type Consultant, type ConsultantId } from "@/lib/db/schema/consultants";
+import {
+  type Consultant,
+  type ConsultantId,
+} from "@/lib/db/schema/consultants";
 import { useOptimisticContracts } from "@/app/(app)/contracts/useOptimisticContracts";
 import { Button } from "@/components/ui/button";
 import ContractForm from "./ContractForm";
@@ -19,12 +22,12 @@ export default function ContractList({
   contracts,
   consultants,
   consultantId,
-  consultantStatus
+  consultantStatus,
 }: {
   contracts: CompleteContract[];
   consultants: Consultant[];
   consultantId?: ConsultantId;
-  consultantStatus: string
+  consultantStatus: string;
 }) {
   const { optimisticContracts, addOptimisticContract } = useOptimisticContracts(
     contracts,
@@ -54,14 +57,13 @@ export default function ContractList({
           consultantId={consultantId}
         />
       </Modal>
-      {
-        consultantStatus === 'Done' &&
+      {consultantStatus === "Done" && (
         <div className="absolute right-0 top-0 ">
           <Button onClick={() => openModal()} variant={"outline"}>
             +
           </Button>
         </div>
-      }
+      )}
       {optimisticContracts.length === 0 ? (
         <EmptyState openModal={openModal} consultantStatus={consultantStatus} />
       ) : (
@@ -94,54 +96,47 @@ const Contract = ({
     ? pathname
     : pathname + "/contracts/";
 
-
   return (
     <li
       className={cn(
         "flex justify-between my-2",
         mutating ? "opacity-30 animate-pulse" : "",
-        deleting ? "text-destructive" : "",
+        deleting ? "text-destructive" : ""
       )}
     >
       <div className="w-full">
         <div>
-          {/* <Link href={contract.customerContract} legacyBehavior >
-            <a target="_blank" rel="noopener noreferrer">
-              Contract details
-            </a>
-          </Link> */}
           <Button variant={"link"} asChild>
-            <Link href={basePath + "/" + contract.id}>
-              Contract details
-            </Link>
+            <Link href={basePath + "/" + contract.id}>Contract details</Link>
           </Button>
         </div>
       </div>
-      {/* <Button variant={"link"} asChild>
-        <Link href={basePath + "/" + contract.id}>
-          Edit
-        </Link>
-      </Button> */}
     </li>
   );
 };
 
-const EmptyState = ({ openModal, consultantStatus }: { openModal: TOpenModal, consultantStatus: string }) => {
+const EmptyState = ({
+  openModal,
+  consultantStatus,
+}: {
+  openModal: TOpenModal;
+  consultantStatus: string;
+}) => {
   return (
     <div className="text-center">
       <h3 className="mt-2 text-sm font-semibold text-secondary-foreground">
         No contracts
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">
-        Get started by creating a new contract.
+        You can only create a contract when consultant's status is done
       </p>
-      {
-        consultantStatus === 'Done' &&
+      {consultantStatus === "Done" && (
         <div className="mt-6">
           <Button onClick={() => openModal()}>
-            <PlusIcon className="h-4" /> New Contracts </Button>
+            <PlusIcon className="h-4" /> New Contracts{" "}
+          </Button>
         </div>
-      }
+      )}
     </div>
   );
 };

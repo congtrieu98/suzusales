@@ -31,19 +31,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { TAddOptimistic } from "@/app/(app)/consultants/useOptimisticConsultants";
-import { ConsultantTypeColumns } from "./columns";
-import { deleteConsultantAction } from "@/lib/actions/consultants";
+import { TAddOptimistic } from "@/app/(app)/staffs/useOptimisticStaffs";
+import { StaffsTypeColumns } from "./columns";
 import { Action } from "@/lib/utils";
-import Loading from "@/app/loading";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { deleteStaffAction } from "@/lib/actions/staffs";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -57,11 +48,10 @@ export function DataTable<TData, TValue>({
   const [filtering, setFiltering] = useState("");
   const [rowSelection, setRowSelection] = useState({});
   const [pending, startMutation] = useTransition();
-  const [optimisticPage, setOptimisticPage] =
-    useOptimistic<ConsultantTypeColumns>(
-      //@ts-ignore
-      data
-    );
+  const [optimisticPage, setOptimisticPage] = useOptimistic<StaffsTypeColumns>(
+    //@ts-ignore
+    data
+  );
 
   const updatePage: TAddOptimistic = (input) =>
     setOptimisticPage({
@@ -132,7 +122,7 @@ export function DataTable<TData, TValue>({
                             //@ts-ignore
                             data: item.original,
                           });
-                        const error = await deleteConsultantAction(
+                        const error = await deleteStaffAction(
                           //@ts-ignore
                           item.original.id
                         );

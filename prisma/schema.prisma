@@ -132,3 +132,12 @@ model Contract {
 
   @@index([userId])
 }
+
+model Staff {
+  id    String @id @default(cuid())
+  email String
+  role  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

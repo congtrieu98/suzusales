@@ -58,7 +58,7 @@ const ContractForm = ({
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [pending, startMutation] = useTransition();
-  const [step, setStep] = useState<string[]>([])
+  const [step, setStep] = useState<string[]>([]);
   // const [inputValues, setInputValues] = useState({
   //   customerContract: '',
   //   paymentSchedule: '',
@@ -66,7 +66,6 @@ const ContractForm = ({
   //   finalContract: '',
   //   customerAddress: ''
   // });
-
 
   const router = useRouter();
   const backpath = useBackPath("contracts");
@@ -112,7 +111,6 @@ const ContractForm = ({
   // };
   // console.log("step:", step)
 
-
   const handleSubmit = async (data: FormData) => {
     setErrors(null);
 
@@ -133,7 +131,7 @@ const ContractForm = ({
       createdAt: contract?.createdAt ?? new Date(),
       id: contract?.id ?? "",
       userId: contract?.userId ?? "",
-      checkSteps: step,
+      checkSteps: contract?.checkSteps ?? step,
       ...values,
     };
     try {
@@ -145,7 +143,11 @@ const ContractForm = ({
           });
 
         const error = editing
-          ? await updateContractAction({ ...values, checkSteps: step, id: contract.id })
+          ? await updateContractAction({
+              ...values,
+              checkSteps: contract.checkSteps.concat(step),
+              id: contract.id,
+            })
           : await createContractAction({ ...values, checkSteps: step });
 
         const errorFormatted = {
@@ -169,10 +171,17 @@ const ContractForm = ({
       {/* Schema fields start */}
       <div>
         <Checkbox
-          checked={contract?.checkSteps.includes('customerContract') ? contract?.checkSteps.includes('customerContract') : step?.includes('customerContract')}
+          checked={
+            contract?.checkSteps.includes("customerContract")
+              ? contract?.checkSteps.includes("customerContract")
+              : step?.includes("customerContract")
+          }
           onCheckedChange={(checked) => {
-            return !checked ? setStep(prevStep => prevStep.filter(item => item !== 'customerContract')) :
-              setStep(prevStep => [...prevStep, 'customerContract']);
+            return !checked
+              ? setStep((prevStep) =>
+                  prevStep.filter((item) => item !== "customerContract")
+                )
+              : setStep((prevStep) => [...prevStep, "customerContract"]);
           }}
         />
         <Label
@@ -202,10 +211,17 @@ const ContractForm = ({
       </div>
       <div>
         <Checkbox
-          checked={contract?.checkSteps.includes('paymentSchedule') ? contract?.checkSteps.includes('paymentSchedule') : step?.includes('paymentSchedule')}
+          checked={
+            contract?.checkSteps.includes("paymentSchedule")
+              ? contract?.checkSteps.includes("paymentSchedule")
+              : step?.includes("paymentSchedule")
+          }
           onCheckedChange={(checked) => {
-            return !checked ? setStep(prevStep => prevStep.filter(item => item !== 'paymentSchedule')) :
-              setStep(prevStep => [...prevStep, 'paymentSchedule']);
+            return !checked
+              ? setStep((prevStep) =>
+                  prevStep.filter((item) => item !== "paymentSchedule")
+                )
+              : setStep((prevStep) => [...prevStep, "paymentSchedule"]);
           }}
         />
         <Label
@@ -233,10 +249,17 @@ const ContractForm = ({
       </div>
       <div>
         <Checkbox
-          checked={contract?.checkSteps.includes('scanContract') ? contract?.checkSteps.includes('scanContract') : step?.includes('scanContract')}
+          checked={
+            contract?.checkSteps.includes("scanContract")
+              ? contract?.checkSteps.includes("scanContract")
+              : step?.includes("scanContract")
+          }
           onCheckedChange={(checked) => {
-            return !checked ? setStep(prevStep => prevStep.filter(item => item !== 'scanContract')) :
-              setStep(prevStep => [...prevStep, 'scanContract']);
+            return !checked
+              ? setStep((prevStep) =>
+                  prevStep.filter((item) => item !== "scanContract")
+                )
+              : setStep((prevStep) => [...prevStep, "scanContract"]);
           }}
         />
         <Label
@@ -264,10 +287,17 @@ const ContractForm = ({
       </div>
       <div>
         <Checkbox
-          checked={contract?.checkSteps.includes('finalContract') ? contract?.checkSteps.includes('finalContract') : step?.includes('finalContract')}
+          checked={
+            contract?.checkSteps.includes("finalContract")
+              ? contract?.checkSteps.includes("finalContract")
+              : step?.includes("finalContract")
+          }
           onCheckedChange={(checked) => {
-            return !checked ? setStep(prevStep => prevStep.filter(item => item !== 'finalContract')) :
-              setStep(prevStep => [...prevStep, 'finalContract']);
+            return !checked
+              ? setStep((prevStep) =>
+                  prevStep.filter((item) => item !== "finalContract")
+                )
+              : setStep((prevStep) => [...prevStep, "finalContract"]);
           }}
         />
         <Label
@@ -295,10 +325,17 @@ const ContractForm = ({
       </div>
       <div>
         <Checkbox
-          checked={contract?.checkSteps.includes('customerAddress') ? contract?.checkSteps.includes('customerAddress') : step?.includes('customerAddress')}
+          checked={
+            contract?.checkSteps.includes("customerAddress")
+              ? contract?.checkSteps.includes("customerAddress")
+              : step?.includes("customerAddress")
+          }
           onCheckedChange={(checked) => {
-            return !checked ? setStep(prevStep => prevStep.filter(item => item !== 'customerAddress')) :
-              setStep(prevStep => [...prevStep, 'customerAddress']);
+            return !checked
+              ? setStep((prevStep) =>
+                  prevStep.filter((item) => item !== "customerAddress")
+                )
+              : setStep((prevStep) => [...prevStep, "customerAddress"]);
           }}
         />
         <Label
@@ -375,18 +412,36 @@ const ContractForm = ({
         <div className="flex space-x-2">
           <Checkbox
             name="checkSteps"
-            checked={editing ? (contract?.checkSteps.concat(step))?.length === 5 : step.length === 5}
+            checked={
+              editing
+                ? contract?.checkSteps.concat(step)?.length === 5
+                : step.length === 5
+            }
             onCheckedChange={(checked) => {
               if (checked) {
-                const fullSteps = ['paymentSchedule', 'customerContract', 'scanContract', 'finalContract', 'customerAddress'];
-                if (editing ? contract?.checkSteps?.length === 0 : step?.length === 0) {
-                  setStep(fullSteps)
+                const fullSteps = [
+                  "paymentSchedule",
+                  "customerContract",
+                  "scanContract",
+                  "finalContract",
+                  "customerAddress",
+                ];
+                if (
+                  editing
+                    ? contract?.checkSteps?.length === 0
+                    : step?.length === 0
+                ) {
+                  setStep(fullSteps);
                 } else {
-                  const missingSteps = fullSteps.filter(stepItem => editing ? !contract?.checkSteps.includes(stepItem) : !step.includes(stepItem));
-                  setStep(prevStep => [...prevStep, ...missingSteps]);
+                  const missingSteps = fullSteps.filter((stepItem) =>
+                    editing
+                      ? !contract?.checkSteps.includes(stepItem)
+                      : !step.includes(stepItem)
+                  );
+                  setStep((prevStep) => [...prevStep, ...missingSteps]);
                 }
               } else {
-                setStep([])
+                setStep([]);
               }
             }}
           />
