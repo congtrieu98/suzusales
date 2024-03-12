@@ -25,7 +25,7 @@ export default function Navbar() {
     <div className="md:hidden border-b mb-4 pb-2 w-full">
       <nav className="flex justify-between w-full items-center">
         <div className="">
-          <Link href={"/"}>
+          <Link href={"/dashboard"}>
             <Image
               width={60}
               height={60}
@@ -115,9 +115,9 @@ const UserDetails = ({
           <AvatarFallback className="border-border border-2 text-muted-foreground">
             {user.name
               ? user.name
-                  ?.split(" ")
-                  .map((word: any) => word[0].toUpperCase())
-                  .join("")
+                ?.split(" ")
+                .map((word: any) => word[0].toUpperCase())
+                .join("")
               : "~"}
           </AvatarFallback>
         </Avatar>

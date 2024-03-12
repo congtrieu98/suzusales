@@ -7,6 +7,7 @@ import { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { defaultLinks, additionalLinks } from "@/config/nav";
+import { useSession } from "next-auth/react";
 
 export interface SidebarLink {
   title: string;
@@ -15,18 +16,30 @@ export interface SidebarLink {
 }
 
 const SidebarItems = () => {
+  const { data: session } = useSession()
+
+  const defaultLinksCustome: SidebarLink[] = [];
+  if (session?.user.role !== 'ADMIN') {
+    defaultLinks.map(item => {
+      if (item.href !== '/staffs') {
+        defaultLinksCustome.push(item)
+      }
+    })
+  }
   return (
     <>
-      <SidebarLinkGroup links={defaultLinks} />
+      <SidebarLinkGroup links={defaultLinksCustome?.length > 0 ? defaultLinksCustome : defaultLinks} />
       {additionalLinks.length > 0
-        ? additionalLinks.map((l) => (
-            <SidebarLinkGroup
-              links={l.links}
-              title={l.title}
-              border
-              key={l.title}
-            />
-          ))
+        ? additionalLinks.map((l) => {
+          const linksCustom = l.links.filter(item => item.href !== '/consultants')
+          console.log(['SALES'].includes(session?.user.role as string))
+          return <SidebarLinkGroup
+            links={['ADMIN', 'SALES'].includes(session?.user.role as string) ? l.links : linksCustom}
+            title={l.title}
+            border
+            key={l.title}
+          />
+        })
         : null}
     </>
   );
@@ -72,9 +85,8 @@ const SidebarLink = ({
   return (
     <Link
       href={link.href}
-      className={`group transition-colors p-2 inline-block hover:bg-popover hover:text-primary text-muted-foreground text-xs hover:shadow rounded-md w-full${
-        active ? " text-primary font-semibold" : ""
-      }`}
+      className={`group transition-colors p-2 inline-block hover:bg-popover hover:text-primary text-muted-foreground text-xs hover:shadow rounded-md w-full${active ? " text-primary font-semibold" : ""
+        }`}
     >
       <div className="flex items-center">
         <div

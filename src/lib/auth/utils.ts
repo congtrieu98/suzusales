@@ -5,11 +5,13 @@ import { Adapter } from "next-auth/adapters";
 import { redirect } from "next/navigation";
 import { env } from "@/lib/env.mjs";
 import GoogleProvider from "next-auth/providers/google";
+import { getStaffs } from "../api/staffs/queries";
 
 declare module "next-auth" {
   interface Session {
     user: DefaultSession["user"] & {
       id: string;
+      role: string;
     };
   }
 }
@@ -21,6 +23,7 @@ export type AuthSession = {
       name?: string;
       email?: string;
       image?: string;
+      role?: string;
     };
   } | null;
 };
@@ -28,10 +31,35 @@ export type AuthSession = {
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db) as Adapter,
   callbacks: {
-    session: ({ session, user }) => {
+    session: async ({ session, user }) => {
       session.user.id = user.id;
+      const dataUser = await getStaffs();
+      if (user.email === 'trieunguyen2806@gmail.com') {
+        session.user.role = 'ADMIN';
+      } else {
+        dataUser.staffs.map((item) => {
+          if (item.role !== '' && session.user.email === item.email) {
+            session.user.role = item.role;
+          } else {
+            redirect("/")
+          }
+        });
+      }
       return session;
     },
+    async signIn({ user }) {
+      const listStaff = await getStaffs();
+      const emailPermission = listStaff.staffs.map((user) => user.email);
+      if (
+        user.email &&
+        (emailPermission.includes(user.email) ||
+          user.email === 'trieunguyen2806@gmail.com')
+      ) {
+        return true
+      } else {
+        return false
+      }
+    }
   },
   providers: [
     GoogleProvider({
