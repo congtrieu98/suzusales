@@ -109,7 +109,6 @@ const ContractForm = ({
   //     }
   //   }
   // };
-  // console.log("step:", step)
 
   const handleSubmit = async (data: FormData) => {
     setErrors(null);

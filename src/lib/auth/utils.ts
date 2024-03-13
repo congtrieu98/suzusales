@@ -34,14 +34,14 @@ export const authOptions: NextAuthOptions = {
     session: async ({ session, user }) => {
       session.user.id = user.id;
       const dataUser = await getStaffs();
-      if (user.email === 'trieunguyen2806@gmail.com') {
-        session.user.role = 'ADMIN';
+      if (user.email === "trieunguyen2806@gmail.com") {
+        session.user.role = "ADMIN";
       } else {
         dataUser.staffs.map((item) => {
-          if (item.role !== '' && session.user.email === item.email) {
+          if (item.role !== "" && user.email === item.email) {
             session.user.role = item.role;
           } else {
-            redirect("/")
+            return null;
           }
         });
       }
@@ -53,13 +53,13 @@ export const authOptions: NextAuthOptions = {
       if (
         user.email &&
         (emailPermission.includes(user.email) ||
-          user.email === 'trieunguyen2806@gmail.com')
+          user.email === "trieunguyen2806@gmail.com")
       ) {
-        return true
+        return true;
       } else {
-        return false
+        return false;
       }
-    }
+    },
   },
   providers: [
     GoogleProvider({

@@ -12,6 +12,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import Image from "next/image";
+import PageSetting from "@/app/(app)/settings/page";
+import NotificationMenu from "./NotificationMenu";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -34,9 +36,14 @@ export default function Navbar() {
             />
           </Link>
         </div>
-        <Button variant="ghost" onClick={() => setOpen(!open)}>
-          <AlignRight />
-        </Button>
+        <div className="flex">
+          <PageSetting />
+          <NotificationMenu />
+
+          <Button variant="ghost" onClick={() => setOpen(!open)}>
+            <AlignRight />
+          </Button>
+        </div>
       </nav>
       {open ? (
         <div className="my-4 p-4 bg-muted">
@@ -115,9 +122,9 @@ const UserDetails = ({
           <AvatarFallback className="border-border border-2 text-muted-foreground">
             {user.name
               ? user.name
-                ?.split(" ")
-                .map((word: any) => word[0].toUpperCase())
-                .join("")
+                  ?.split(" ")
+                  .map((word: any) => word[0].toUpperCase())
+                  .join("")
               : "~"}
           </AvatarFallback>
         </Avatar>

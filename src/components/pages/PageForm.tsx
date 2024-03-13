@@ -54,7 +54,6 @@ const PageForm = ({
     const failed = Boolean(data?.error);
     if (failed) {
       openModal && openModal(data?.values);
-      console.log(data);
       toast.error(`Failed to ${action}`, {
         description: data?.error ?? "Error",
       });
@@ -96,11 +95,11 @@ const PageForm = ({
 
         const error = editing
           ? await updatePageAction({
-            public: page.public,
-            backgroundColor: page.backgroundColor,
-            ...values,
-            id: page.id,
-          })
+              public: page.public,
+              backgroundColor: page.backgroundColor,
+              ...values,
+              id: page.id,
+            })
           : await createPageAction(values);
 
         const errorFormatted = {

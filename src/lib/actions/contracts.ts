@@ -30,7 +30,6 @@ const revalidateContracts = () => revalidatePath("/contracts");
 export const createContractAction = async (input: NewContractParams) => {
   try {
     const payload = insertContractParamsCustom.parse(input);
-    console.log("payload:", payload)
     await createContract(payload);
     revalidateContracts();
   } catch (e) {
