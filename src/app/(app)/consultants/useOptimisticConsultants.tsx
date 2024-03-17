@@ -7,7 +7,7 @@ export type TAddOptimistic = (action: OptimisticAction<Consultant>) => void;
 
 export const useOptimisticConsultants = (
   consultants: CompleteConsultant[],
-  
+
 ) => {
   const [optimisticConsultants, addOptimisticConsultant] = useOptimistic(
     consultants,
@@ -17,11 +17,8 @@ export const useOptimisticConsultants = (
     ): CompleteConsultant[] => {
       const { data } = action;
 
-      
-
       const optimisticConsultant = {
         ...data,
-        
         id: "optimistic",
       };
 

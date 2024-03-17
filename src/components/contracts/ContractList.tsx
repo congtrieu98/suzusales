@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import ContractForm from "./ContractForm";
 import { PlusIcon } from "lucide-react";
 
-type TOpenModal = (contract?: Contract) => void;
+type TOpenModal = (contract?: CompleteContract) => void;
 
 export default function ContractList({
   contracts,
@@ -34,8 +34,8 @@ export default function ContractList({
     consultants
   );
   const [open, setOpen] = useState(false);
-  const [activeContract, setActiveContract] = useState<Contract | null>(null);
-  const openModal = (contract?: Contract) => {
+  const [activeContract, setActiveContract] = useState<CompleteContract | null>(null);
+  const openModal = (contract?: CompleteContract) => {
     setOpen(true);
     contract ? setActiveContract(contract) : setActiveContract(null);
   };
@@ -128,7 +128,7 @@ const EmptyState = ({
         No contracts
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">
-        You can only create a contract when consultant's status is done
+        You can only create a contract when consultant is status is done
       </p>
       {consultantStatus === "Done" && (
         <div className="mt-6">

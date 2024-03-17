@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { type Contract, insertContractParams } from "@/lib/db/schema/contracts";
+import { type Contract, insertContractParams, CompleteContract } from "@/lib/db/schema/contracts";
 import {
   createContractAction,
   deleteContractAction,
@@ -44,10 +44,10 @@ const ContractForm = ({
   addOptimistic,
   postSuccess,
 }: {
-  contract?: Contract | null;
+  contract?: CompleteContract | null;
   consultants: Consultant[];
   consultantId?: ConsultantId;
-  openModal?: (contract?: Contract) => void;
+  openModal?: (contract?: CompleteContract) => void;
   closeModal?: () => void;
   addOptimistic?: TAddOptimistic;
   postSuccess?: () => void;
@@ -72,7 +72,7 @@ const ContractForm = ({
 
   const onSuccess = (
     action: Action,
-    data?: { error: string; values: Contract }
+    data?: { error: string; values: CompleteContract }
   ) => {
     const failed = Boolean(data?.error);
     if (failed) {
@@ -125,12 +125,13 @@ const ContractForm = ({
 
     closeModal && closeModal();
     const values = contractParsed.data;
-    const pendingContract: Contract = {
+    const pendingContract: CompleteContract = {
       updatedAt: contract?.updatedAt ?? new Date(),
       createdAt: contract?.createdAt ?? new Date(),
       id: contract?.id ?? "",
       userId: contract?.userId ?? "",
       checkSteps: contract?.checkSteps ?? step,
+      consultant: consultants.find(item => item?.id === consultantId)!,
       ...values,
     };
     try {
@@ -143,10 +144,10 @@ const ContractForm = ({
 
         const error = editing
           ? await updateContractAction({
-              ...values,
-              checkSteps: contract.checkSteps.concat(step),
-              id: contract.id,
-            })
+            ...values,
+            checkSteps: contract.checkSteps.concat(step),
+            id: contract.id,
+          })
           : await createContractAction({ ...values, checkSteps: step });
 
         const errorFormatted = {
@@ -178,8 +179,8 @@ const ContractForm = ({
           onCheckedChange={(checked) => {
             return !checked
               ? setStep((prevStep) =>
-                  prevStep.filter((item) => item !== "customerContract")
-                )
+                prevStep.filter((item) => item !== "customerContract")
+              )
               : setStep((prevStep) => [...prevStep, "customerContract"]);
           }}
         />
@@ -218,8 +219,8 @@ const ContractForm = ({
           onCheckedChange={(checked) => {
             return !checked
               ? setStep((prevStep) =>
-                  prevStep.filter((item) => item !== "paymentSchedule")
-                )
+                prevStep.filter((item) => item !== "paymentSchedule")
+              )
               : setStep((prevStep) => [...prevStep, "paymentSchedule"]);
           }}
         />
@@ -256,8 +257,8 @@ const ContractForm = ({
           onCheckedChange={(checked) => {
             return !checked
               ? setStep((prevStep) =>
-                  prevStep.filter((item) => item !== "scanContract")
-                )
+                prevStep.filter((item) => item !== "scanContract")
+              )
               : setStep((prevStep) => [...prevStep, "scanContract"]);
           }}
         />
@@ -294,8 +295,8 @@ const ContractForm = ({
           onCheckedChange={(checked) => {
             return !checked
               ? setStep((prevStep) =>
-                  prevStep.filter((item) => item !== "finalContract")
-                )
+                prevStep.filter((item) => item !== "finalContract")
+              )
               : setStep((prevStep) => [...prevStep, "finalContract"]);
           }}
         />
@@ -332,8 +333,8 @@ const ContractForm = ({
           onCheckedChange={(checked) => {
             return !checked
               ? setStep((prevStep) =>
-                  prevStep.filter((item) => item !== "customerAddress")
-                )
+                prevStep.filter((item) => item !== "customerAddress")
+              )
               : setStep((prevStep) => [...prevStep, "customerAddress"]);
           }}
         />
