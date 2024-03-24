@@ -14,6 +14,7 @@ import { Session } from "next-auth";
 import Image from "next/image";
 import PageSetting from "@/app/(app)/settings/page";
 import NotificationMenu from "./NotificationMenu";
+import SidebarItems from "./SidebarItems";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -49,41 +50,8 @@ export default function Navbar() {
         <div className="my-4 p-4 bg-muted">
           <div className="flex justify-between items-start">
             <ul className="space-y-2 pb-4">
-              <li
-                onClick={() => setOpen(false)}
-                className={
-                  pathname === "/dashboard"
-                    ? "text-primary hover:text-primary font-semibold cursor-pointer"
-                    : "text-muted-foreground hover:text-primary cursor-pointer"
-                }
-              >
-                <Link href={"/dashboard"}>Home</Link>
-              </li>
-
-              {additionalLinksCustom[0].links.map((link) => (
-                <li
-                  key={link.title}
-                  onClick={() => setOpen(false)}
-                  className=""
-                >
-                  <Link
-                    href={link.href as string}
-                    className={
-                      pathname === link.href
-                        ? "text-primary hover:text-primary font-semibold"
-                        : "text-muted-foreground hover:text-primary"
-                    }
-                  >
-                    {link.title}
-                  </Link>
-                </li>
-              ))}
+              <SidebarItems />
             </ul>
-            <div>
-              <Link href={"/settings"}>
-                <Settings onClick={() => setOpen(false)} size={18} />
-              </Link>
-            </div>
           </div>
 
           <UserDetails session={session as Session} setOpen={setOpen} />
@@ -112,7 +80,7 @@ const UserDetails = ({
         className="flex items-center justify-between w-full border-t border-border pt-4"
       >
         <div className="text-muted-foreground">
-          <p className="text-xs">{user.name ?? "John Doe"}</p>
+          <p className="text-xs text-blue-400 underline">{user.name ?? "John Doe"}</p>
           <p className="text-xs font-light pr-4">
             {user.email ?? "john@doe.com"}
           </p>
@@ -122,9 +90,9 @@ const UserDetails = ({
           <AvatarFallback className="border-border border-2 text-muted-foreground">
             {user.name
               ? user.name
-                  ?.split(" ")
-                  .map((word: any) => word[0].toUpperCase())
-                  .join("")
+                ?.split(" ")
+                .map((word: any) => word[0].toUpperCase())
+                .join("")
               : "~"}
           </AvatarFallback>
         </Avatar>
