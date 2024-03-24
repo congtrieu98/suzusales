@@ -36,22 +36,22 @@ const SidebarItems = () => {
 
       {additionalLinks.length > 0
         ? additionalLinks.map((l) => {
-            const linksCustom = l.links.filter(
-              (item) => item.href !== "/consultants"
-            );
-            return (
-              <SidebarLinkGroup
-                links={
-                  ["ADMIN", "SALES"].includes(session?.user.role as string)
-                    ? l.links
-                    : linksCustom
-                }
-                title={l.title}
-                border
-                key={l.title}
-              />
-            );
-          })
+          const linksCustom = l.links.filter(
+            (item) => item.href !== "/consultants"
+          );
+          return (
+            <SidebarLinkGroup
+              links={
+                ["ADMIN", "SALES"].includes(session?.user.role as string)
+                  ? l.links
+                  : linksCustom
+              }
+              title={l.title}
+              border
+              key={l.title}
+            />
+          );
+        })
         : null}
     </>
   );
@@ -97,9 +97,8 @@ const SidebarLink = ({
   return (
     <Link
       href={link.href}
-      className={`group transition-colors p-2 inline-block hover:bg-popover hover:text-primary text-muted-foreground text-xs hover:shadow rounded-md w-full${
-        active ? " text-primary font-semibold" : ""
-      }`}
+      className={`group transition-colors p-2 inline-block hover:bg-popover hover:text-primary text-muted-foreground text-xs hover:shadow rounded-md w-full${active ? " text-primary font-semibold" : ""
+        }`}
     >
       <div className="flex items-center">
         <div
