@@ -5,6 +5,7 @@ import ConsultantList from "@/components/consultants/ConsultantList";
 import { getConsultants } from "@/lib/api/consultants/queries";
 
 import { checkAuth } from "@/lib/auth/utils";
+import { getStaffs } from "@/lib/api/staffs/queries";
 
 export const revalidate = 0;
 
@@ -25,10 +26,11 @@ const Consultants = async () => {
   await checkAuth();
 
   const { consultants } = await getConsultants();
-  
+  const { staffs } = await getStaffs();
+
   return (
     <Suspense fallback={<Loading />}>
-      <ConsultantList consultants={consultants}  />
+      <ConsultantList consultants={consultants} staffs={staffs} />
     </Suspense>
   );
 };

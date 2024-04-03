@@ -10,6 +10,7 @@ export const consultantSchema = z.object({
   status: z.string(),
   creator: z.string(),
   userId: z.string(),
+  assignedId: z.string().array(),
   createdAt: z.date(),
   updatedAt: z.date(),
 })

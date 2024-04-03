@@ -18,13 +18,16 @@ import { PlusIcon } from "lucide-react";
 import { DataTable } from "./table/data-table";
 import { columns } from "./table/columns";
 import moment from "moment";
+import { CompleteStaff } from "@/lib/db/schema/staffs";
 
 type TOpenModal = (consultant?: Consultant) => void;
 
 export default function ConsultantList({
   consultants,
+  staffs,
 }: {
   consultants: CompleteConsultant[];
+  staffs: CompleteStaff[];
 }) {
   const { optimisticConsultants, addOptimisticConsultant } =
     useOptimisticConsultants(consultants);
@@ -62,6 +65,7 @@ export default function ConsultantList({
           addOptimistic={addOptimisticConsultant}
           openModal={openModal}
           closeModal={closeModal}
+          staffs={staffs}
         />
       </Modal>
       <div className="absolute right-0 top-0 ">
@@ -72,15 +76,6 @@ export default function ConsultantList({
       {optimisticConsultants.length === 0 ? (
         <EmptyState openModal={openModal} />
       ) : (
-        // <ul>
-        //   {optimisticConsultants.map((consultant) => (
-        //     <Consultant
-        //       consultant={consultant}
-        //       key={consultant.id}
-        //       openModal={openModal}
-        //     />
-        //   ))}
-        // </ul>
         <div className="container mx-auto py-10">
           <DataTable
             columns={columns}

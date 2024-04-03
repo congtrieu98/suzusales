@@ -30,7 +30,8 @@ const revalidateConsultants = () => revalidatePath("/consultants");
 export const createConsultantAction = async (input: NewConsultantParams) => {
   try {
     const payload = insertConsultantParamsCustom.parse(input);
-    await createConsultant(payload);
+    console.log("payload:", payload);
+    // await createConsultant(payload);
     revalidateConsultants();
   } catch (e) {
     return handleErrors(e);

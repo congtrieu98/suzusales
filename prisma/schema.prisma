@@ -106,6 +106,7 @@ model Consultant {
   status       String
   creator      String
   userId       String
+  assignedId   String[]
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt

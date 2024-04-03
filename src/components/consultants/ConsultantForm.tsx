@@ -1,3 +1,5 @@
+"use client";
+
 import { z } from "zod";
 
 import { useState, useTransition } from "react";
@@ -20,6 +22,7 @@ import {
   type Consultant,
   insertConsultantParams,
 } from "@/lib/db/schema/consultants";
+import { type CompleteStaff } from "@/lib/db/schema/staffs";
 import {
   createConsultantAction,
   deleteConsultantAction,
@@ -35,15 +38,18 @@ import {
   SelectValue,
 } from "../ui/select";
 
+import Selector from "react-select";
+
 const ConsultantForm = ({
   consultant,
   openModal,
   closeModal,
   addOptimistic,
   postSuccess,
+  staffs,
 }: {
   consultant?: Consultant | null;
-
+  staffs: CompleteStaff[];
   openModal?: (consultant?: Consultant) => void;
   closeModal?: () => void;
   addOptimistic?: TAddOptimistic;
@@ -58,6 +64,7 @@ const ConsultantForm = ({
   const { data: session } = useSession();
 
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedOption, setSelectedOption] = useState<string[]>([]);
   const [pending, startMutation] = useTransition();
 
   const router = useRouter();
@@ -87,6 +94,7 @@ const ConsultantForm = ({
     const consultantParsed = await insertConsultantParams.safeParseAsync({
       ...payload,
     });
+    console.log("consultantParsed:", consultantParsed);
     if (!consultantParsed.success) {
       setErrors(consultantParsed?.error.flatten().fieldErrors);
       return;
@@ -94,6 +102,7 @@ const ConsultantForm = ({
 
     closeModal && closeModal();
     const values = consultantParsed.data;
+    console.log("values:", values);
     const pendingConsultant: Consultant = {
       updatedAt: consultant?.updatedAt ?? new Date(),
       createdAt: consultant?.createdAt ?? new Date(),
@@ -113,18 +122,18 @@ const ConsultantForm = ({
 
         const error = editing
           ? await updateConsultantAction({
-            ...values,
-            id: consultant.id,
-            airDate: consultant?.airDate
-              ? consultant?.airDate
-              : moment(airDate).toDate(),
-            creator: session?.user.name as string,
-          })
+              ...values,
+              id: consultant.id,
+              airDate: consultant?.airDate
+                ? consultant?.airDate
+                : moment(airDate).toDate(),
+              creator: session?.user.name as string,
+            })
           : await createConsultantAction({
-            ...values,
-            airDate: moment(airDate).toDate(),
-            creator: session?.user.name as string,
-          });
+              ...values,
+              airDate: moment(airDate).toDate(),
+              creator: session?.user.name as string,
+            });
 
         const errorFormatted = {
           error: error ?? "Error",
@@ -141,6 +150,13 @@ const ConsultantForm = ({
       }
     }
   };
+
+  const options = staffs.map((s) => ({
+    value: s.id,
+    label: s.email,
+  }));
+
+  console.log("selectedOption:", selectedOption);
 
   return (
     <form action={handleSubmit} onChange={handleChange} className={""}>
@@ -198,7 +214,7 @@ const ConsultantForm = ({
             errors?.content ? "text-destructive" : ""
           )}
         >
-          Content
+          Description
         </Label>
         <Input
           type="text"
@@ -208,6 +224,34 @@ const ConsultantForm = ({
         />
         {errors?.content ? (
           <p className="text-xs text-destructive mt-2">{errors.content[0]}</p>
+        ) : (
+          <div className="h-6" />
+        )}
+      </div>
+      <div>
+        <Label
+          className={cn(
+            "mb-2 inline-block",
+            errors?.status ? "text-destructive" : ""
+          )}
+        >
+          Assigned
+        </Label>
+        <Selector
+          name="assignedId"
+          // defaultValue={selectedOption}
+          //@ts-ignore
+          value={selectedOption?.map((item) => item?.value)}
+          //@ts-ignore
+          onChange={setSelectedOption}
+          options={options}
+          isMulti
+          isSearchable
+        />
+        {errors?.assignedId ? (
+          <p className="text-xs text-destructive mt-2">
+            {errors.assignedId[0]}
+          </p>
         ) : (
           <div className="h-6" />
         )}
