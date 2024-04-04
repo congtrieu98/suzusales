@@ -94,7 +94,7 @@ const ConsultantForm = ({
     const consultantParsed = await insertConsultantParams.safeParseAsync({
       ...payload,
     });
-    console.log("consultantParsed:", consultantParsed);
+
     if (!consultantParsed.success) {
       setErrors(consultantParsed?.error.flatten().fieldErrors);
       return;
@@ -102,7 +102,7 @@ const ConsultantForm = ({
 
     closeModal && closeModal();
     const values = consultantParsed.data;
-    console.log("values:", values);
+
     const pendingConsultant: Consultant = {
       updatedAt: consultant?.updatedAt ?? new Date(),
       createdAt: consultant?.createdAt ?? new Date(),
@@ -110,6 +110,8 @@ const ConsultantForm = ({
       userId: consultant?.userId ?? "",
       creator: session?.user.name as string,
       airDate: moment(airDate).toDate(),
+      //@ts-ignore
+      assignedId: selectedOption?.map((item) => item?.value),
       ...values,
     };
     try {
@@ -128,13 +130,16 @@ const ConsultantForm = ({
                 ? consultant?.airDate
                 : moment(airDate).toDate(),
               creator: session?.user.name as string,
+              assignedId: selectedOption,
             })
           : await createConsultantAction({
               ...values,
               airDate: moment(airDate).toDate(),
               creator: session?.user.name as string,
+              //@ts-ignore
+              assignedId: selectedOption.map((staff) => staff?.value),
             });
-
+        setSelectedOption([]);
         const errorFormatted = {
           error: error ?? "Error",
           values: pendingConsultant,
@@ -151,12 +156,27 @@ const ConsultantForm = ({
     }
   };
 
+  const handleChangeSelectAssign = (values: string[]) => {
+    if (editing) {
+      //@ts-ignore
+      const newValues = values.map((vl) => vl.value);
+      const mergedResult = Array.from(
+        new Set([...consultant?.assignedId, ...newValues])
+      );
+
+      setSelectedOption(mergedResult);
+    } else {
+      setSelectedOption(values);
+    }
+  };
+  console.log("selectedOptionChange:", selectedOption);
+
   const options = staffs.map((s) => ({
     value: s.id,
     label: s.email,
   }));
 
-  console.log("selectedOption:", selectedOption);
+  // console.log(selectedOption.map((staff) => staff?.value));
 
   return (
     <form action={handleSubmit} onChange={handleChange} className={""}>
@@ -228,34 +248,45 @@ const ConsultantForm = ({
           <div className="h-6" />
         )}
       </div>
-      <div>
-        <Label
-          className={cn(
-            "mb-2 inline-block",
-            errors?.status ? "text-destructive" : ""
+      {session?.user.role === "ADMIN" && (
+        <div>
+          <Label
+            className={cn(
+              "mb-2 inline-block",
+              errors?.status ? "text-destructive" : ""
+            )}
+          >
+            Assigned
+          </Label>
+          <Selector
+            name="assignedId"
+            //@ts-ignore
+            defaultValue={
+              editing
+                ? staffs
+                    .filter((it) => consultant?.assignedId.includes(it.id))
+                    .map((rs) => ({
+                      value: rs?.id,
+                      label: rs?.email,
+                    }))
+                : selectedOption
+            }
+            //@ts-ignore
+            onChange={handleChangeSelectAssign}
+            //@ts-ignore
+            options={options}
+            isMulti
+            isSearchable
+          />
+          {errors?.assignedId ? (
+            <p className="text-xs text-destructive mt-2">
+              {errors.assignedId[0]}
+            </p>
+          ) : (
+            <div className="h-6" />
           )}
-        >
-          Assigned
-        </Label>
-        <Selector
-          name="assignedId"
-          // defaultValue={selectedOption}
-          //@ts-ignore
-          value={selectedOption?.map((item) => item?.value)}
-          //@ts-ignore
-          onChange={setSelectedOption}
-          options={options}
-          isMulti
-          isSearchable
-        />
-        {errors?.assignedId ? (
-          <p className="text-xs text-destructive mt-2">
-            {errors.assignedId[0]}
-          </p>
-        ) : (
-          <div className="h-6" />
-        )}
-      </div>
+        </div>
+      )}
       <div>
         <Label
           className={cn(

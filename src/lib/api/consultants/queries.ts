@@ -15,8 +15,27 @@ export const getConsultants = async () => {
     });
     return { consultants: c };
   } else {
+    const staffs = await db.staff.findMany();
+
+    const staffById = staffs.map((st) => st.id);
+
     const c = await db.consultant.findMany({
-      where: { userId: session?.user.id! },
+      where: {
+        // userId: session?.user.id!,
+        // assignedId: {
+        //   hasSome: staffById,
+        // },
+        OR: [
+          {
+            userId: session?.user.id!,
+          },
+          {
+            assignedId: {
+              equals: staffById,
+            },
+          },
+        ],
+      },
       orderBy: {
         createdAt: "desc",
       },

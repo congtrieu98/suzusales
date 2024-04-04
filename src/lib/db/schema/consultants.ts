@@ -14,12 +14,14 @@ export const insertConsultantParams = baseSchema
     airDate: z.coerce.date(),
     customerName: z.string().min(1, { message: "Field is required" }),
     projectName: z.string().min(1, { message: "Field is required" }),
+    assignedId: z.string().min(1, { message: "Field is required" }),
   })
   .omit({
     id: true,
     userId: true,
     creator: true,
     airDate: true,
+    assignedId: true,
   });
 
 export const insertConsultantParamsCustom = baseSchema

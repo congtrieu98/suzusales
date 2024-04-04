@@ -49,9 +49,54 @@ export default function ConsultantList({
     status: item.status,
     creator: item.creator,
     userId: item.userId,
+    assignedId: staffs
+      .map((st) => {
+        const check = item.assignedId.includes(st.id);
+        if (check) {
+          return st.email;
+        } else {
+          return "";
+        }
+      })
+      .map((email) => {
+        const part = email!.split("@");
+        return part[0];
+      })
+      .join(",")
+      .startsWith(",")
+      ? staffs
+          .map((st) => {
+            const check = item.assignedId.includes(st.id);
+            if (check) {
+              return st.email;
+            } else {
+              return "";
+            }
+          })
+          .map((email) => {
+            const part = email!.split("@");
+            return part[0];
+          })
+          .join(",")
+          .slice(1)
+      : staffs
+          .map((st) => {
+            const check = item.assignedId.includes(st.id);
+            if (check) {
+              return st.email;
+            } else {
+              return "";
+            }
+          })
+          .map((email) => {
+            const part = email!.split("@");
+            return part[0];
+          })
+          .join(", "),
     createdAt: moment(item.createdAt).format(formatDateSlash),
     updatedAt: item.updatedAt,
   }));
+  console.log("consultants", consultants);
 
   return (
     <div>
