@@ -12,13 +12,24 @@ import { Novu } from "@novu/node";
 
 export const createConsultant = async (consultant: NewConsultantParams) => {
   const { session } = await getUserAuth();
-  const newConsultant = insertConsultantSchema.parse({
+  const newConsultant = {
     ...consultant,
     userId: session?.user.id!,
-  });
+    ConsultantStaff: {
+      create: consultant.assignedId.map((item) => ({
+        staffId: item,
+      })),
+    },
+  };
+
   const novu = new Novu(process.env.NOVU_SECRET_API_KEY as string);
   try {
-    const c = await db.consultant.create({ data: newConsultant });
+    const c = await db.consultant.create({
+      data: newConsultant,
+      include: {
+        ConsultantStaff: true,
+      },
+    });
     if (c) {
       const findAdmin = await db.staff.findFirst({
         where: { role: "ADMIN" },

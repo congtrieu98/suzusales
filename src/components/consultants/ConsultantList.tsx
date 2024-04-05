@@ -6,8 +6,8 @@ import { usePathname } from "next/navigation";
 
 import { cn, formatDateSlash } from "@/lib/utils";
 import {
-  type Consultant,
   CompleteConsultant,
+  type Consultant,
 } from "@/lib/db/schema/consultants";
 import Modal from "@/components/shared/Modal";
 
@@ -19,8 +19,42 @@ import { DataTable } from "./table/data-table";
 import { columns } from "./table/columns";
 import moment from "moment";
 import { CompleteStaff } from "@/lib/db/schema/staffs";
+import { useSession } from "next-auth/react";
 
 type TOpenModal = (consultant?: Consultant) => void;
+// type CompleteConsultant = {
+//   id: string;
+//   customerName: string;
+//   projectName: string;
+//   content: string;
+//   airDate: Date;
+//   status: string;
+//   creator: string;
+//   userId: string;
+//   assignedId: string[];
+//   createdAt: Date;
+//   updatedAt: Date;
+//   consultant: {
+//     id: string;
+//     customerName: string;
+//     projectName: string;
+//     content: string;
+//     airDate: Date;
+//     status: string;
+//     creator: string;
+//     userId: string;
+//     assignedId: string[];
+//     createdAt: Date;
+//     updatedAt: Date;
+//     // Các trường khác nếu có
+//   };
+//   staff: {
+//     createdAt: Date;
+//     email: string;
+//     id: string;
+//     role: string;
+//   };
+// }[];
 
 export default function ConsultantList({
   consultants,
@@ -29,6 +63,7 @@ export default function ConsultantList({
   consultants: CompleteConsultant[];
   staffs: CompleteStaff[];
 }) {
+  const { data: session } = useSession();
   const { optimisticConsultants, addOptimisticConsultant } =
     useOptimisticConsultants(consultants);
   const [open, setOpen] = useState(false);
@@ -40,33 +75,53 @@ export default function ConsultantList({
     consultant ? setActiveConsultant(consultant) : setActiveConsultant(null);
   };
   const closeModal = () => setOpen(false);
-  const optimisticConsultantsCustom = optimisticConsultants.map((item) => ({
-    id: item.id,
-    customerName: item.customerName,
-    projectName: item.projectName,
-    content: item.content,
-    airDate: item.airDate,
-    status: item.status,
-    creator: item.creator,
-    userId: item.userId,
-    assignedId: staffs
-      .map((st) => {
-        const check = item.assignedId.includes(st.id);
-        if (check) {
-          return st.email;
-        } else {
-          return "";
-        }
-      })
-      .map((email) => {
-        const part = email!.split("@");
-        return part[0];
-      })
-      .join(",")
-      .startsWith(",")
-      ? staffs
+
+  const optimisticConsultantsCustom = optimisticConsultants.map((item) => {
+    console.log("item:", item);
+    if (session?.user.role !== "ADMIN") {
+      return {
+        id: item.id,
+
+        customerName: item?.consultant.customerName,
+
+        projectName: item?.consultant.projectName,
+
+        content: item?.consultant.content,
+
+        airDate: item?.consultant.airDate,
+
+        status: item?.consultant.status,
+
+        creator: item?.consultant.creator,
+
+        userId: item?.consultant.userId,
+
+        assignedId: item?.staff.email.split("@")[0],
+
+        createdAt: moment(item?.consultant.createdAt).format(formatDateSlash),
+
+        updatedAt: item?.consultant.updatedAt,
+      };
+    } else {
+      return {
+        id: item.id,
+
+        customerName: item?.customerName,
+
+        projectName: item?.projectName,
+
+        content: item?.content,
+
+        airDate: item?.airDate,
+
+        status: item?.status,
+
+        creator: item?.creator,
+
+        userId: item?.userId,
+        assignedId: staffs
           .map((st) => {
-            const check = item.assignedId.includes(st.id);
+            const check = item?.assignedId.includes(st.id);
             if (check) {
               return st.email;
             } else {
@@ -78,25 +133,46 @@ export default function ConsultantList({
             return part[0];
           })
           .join(",")
-          .slice(1)
-      : staffs
-          .map((st) => {
-            const check = item.assignedId.includes(st.id);
-            if (check) {
-              return st.email;
-            } else {
-              return "";
-            }
-          })
-          .map((email) => {
-            const part = email!.split("@");
-            return part[0];
-          })
-          .join(", "),
-    createdAt: moment(item.createdAt).format(formatDateSlash),
-    updatedAt: item.updatedAt,
-  }));
+          .startsWith(",")
+          ? staffs
+              .map((st) => {
+                const check = item.assignedId.includes(st.id);
+                if (check) {
+                  return st.email;
+                } else {
+                  return "";
+                }
+              })
+              .map((email) => {
+                const part = email!.split("@");
+                return part[0];
+              })
+              .join(",")
+              .slice(1)
+          : staffs
+              .map((st) => {
+                const check = item.assignedId.includes(st.id);
+                if (check) {
+                  return st.email;
+                } else {
+                  return "";
+                }
+              })
+              .map((email) => {
+                const part = email!.split("@");
+                return part[0];
+              })
+              .join(", "),
+
+        createdAt: moment(item.createdAt).format(formatDateSlash),
+
+        updatedAt: item.updatedAt,
+      };
+    }
+  });
+
   console.log("consultants", consultants);
+  console.log("role", session?.user?.role);
 
   return (
     <div>
@@ -122,11 +198,7 @@ export default function ConsultantList({
         <EmptyState openModal={openModal} />
       ) : (
         <div className="container mx-auto py-10">
-          <DataTable
-            columns={columns}
-            //@ts-ignore
-            data={optimisticConsultantsCustom}
-          />
+          <DataTable columns={columns} data={optimisticConsultantsCustom} />
         </div>
       )}
     </div>
@@ -141,6 +213,7 @@ const Consultant = ({
   openModal: TOpenModal;
 }) => {
   const optimistic = consultant.id === "optimistic";
+
   const deleting = consultant.id === "delete";
   const mutating = optimistic || deleting;
   const pathname = usePathname();

@@ -27,6 +27,7 @@ const Consultants = async () => {
 
   const { consultants } = await getConsultants();
   const { staffs } = await getStaffs();
+  console.log("consultantsByUser:", consultants);
 
   return (
     <Suspense fallback={<Loading />}>
