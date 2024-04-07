@@ -7,46 +7,61 @@ import {
 
 export const getConsultants = async () => {
   const { session } = await getUserAuth();
-  if (session?.user.role === "ADMIN") {
-    const c = await db.consultant.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-    return { consultants: c };
-  } else {
-    const findUserByEmail = await db.staff.findFirst({
-      where: {
-        email: session?.user.email,
-      },
-    });
-    const c = await db.consultantStaff.findMany({
-      where: {
-        staffId: findUserByEmail?.id!,
-      },
-      include: {
-        consultant: true,
-        staff: true,
-      },
-    });
-    return { consultants: c };
-  }
+  // if (session?.user.role === "ADMIN") {
+  const c = await db.consultant.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      ConsultantStaff: true,
+    }
+  });
+  return { consultants: c };
+  // } else {
+  //   const findUserByEmail = await db.staff.findFirst({
+  //     where: {
+  //       email: session?.user.email,
+  //     },
+  //   });
+  //   const c = await db.consultantStaff.findMany({
+  //     where: {
+  //       staffId: findUserByEmail?.id!,
+  //     },
+  //     include: {
+  //       consultant: true,
+  //       staff: true,
+  //     },
+  //   });
+  //   return { consultants: c };
+  // }
 };
 
 export const getConsultantById = async (id: ConsultantId) => {
   const { session } = await getUserAuth();
-  const { id: consultantId } = consultantIdSchema.parse({ id });
-  if (session?.user.role === "ADMIN") {
+  const ConsultantIds = id
+  console.log("ConsultantIds:", ConsultantIds)
+  console.log("ConsultantIds:", ConsultantIds)
+  console.log("ConsultantIds:", ConsultantIds)
+  console.log("ConsultantIds:", ConsultantIds)
+  console.log("ConsultantIds:", ConsultantIds)
+  console.log("ConsultantIds:", ConsultantIds)
+  console.log("ConsultantIds:", ConsultantIds)
+  // const { id: consultantId } = consultantIdSchema.parse({ id });
+  // if (session?.user.role === "ADMIN") {
+  const consultants = ConsultantIds.map(async (item) => {
     const c = await db.consultant.findFirst({
-      where: { id: consultantId },
+      where: { id: item },
     });
-    return { consultant: c };
-  } else {
-    const c = await db.consultant.findFirst({
-      where: { id: consultantId, userId: session?.user.id! },
-    });
-    return { consultant: c };
-  }
+    return c;
+  })
+
+  return { data: consultants };
+  // } else {
+  //   const c = await db.consultant.findFirst({
+  //     where: { id: consultantId, userId: session?.user.id! },
+  //   });
+  //   return { consultant: c };
+  // }
 };
 
 export const getConsultantByIdWithContracts = async (id: ConsultantId) => {

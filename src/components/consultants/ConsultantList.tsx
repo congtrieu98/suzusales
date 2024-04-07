@@ -79,28 +79,29 @@ export default function ConsultantList({
   const optimisticConsultantsCustom = optimisticConsultants.map((item) => {
     console.log("item:", item);
     if (session?.user.role !== "ADMIN") {
+      console.log("vaof ddaay")
       return {
         id: item.id,
 
-        customerName: item?.consultant.customerName,
+        customerName: item.customerName,
 
-        projectName: item?.consultant.projectName,
+        projectName: item.projectName,
 
-        content: item?.consultant.content,
+        content: item.content,
 
-        airDate: item?.consultant.airDate,
+        airDate: item.airDate,
 
-        status: item?.consultant.status,
+        status: item.status,
 
-        creator: item?.consultant.creator,
+        creator: item.creator,
 
-        userId: item?.consultant.userId,
+        userId: item.userId,
 
-        assignedId: item?.staff.email.split("@")[0],
+        // assignedId: item?.staff.email.split("@")[0],
 
-        createdAt: moment(item?.consultant.createdAt).format(formatDateSlash),
+        createdAt: moment(item.createdAt).format(formatDateSlash),
 
-        updatedAt: item?.consultant.updatedAt,
+        updatedAt: item.updatedAt,
       };
     } else {
       return {
@@ -135,34 +136,34 @@ export default function ConsultantList({
           .join(",")
           .startsWith(",")
           ? staffs
-              .map((st) => {
-                const check = item.assignedId.includes(st.id);
-                if (check) {
-                  return st.email;
-                } else {
-                  return "";
-                }
-              })
-              .map((email) => {
-                const part = email!.split("@");
-                return part[0];
-              })
-              .join(",")
-              .slice(1)
+            .map((st) => {
+              const check = item.assignedId.includes(st.id);
+              if (check) {
+                return st.email;
+              } else {
+                return "";
+              }
+            })
+            .map((email) => {
+              const part = email!.split("@");
+              return part[0];
+            })
+            .join(",")
+            .slice(1)
           : staffs
-              .map((st) => {
-                const check = item.assignedId.includes(st.id);
-                if (check) {
-                  return st.email;
-                } else {
-                  return "";
-                }
-              })
-              .map((email) => {
-                const part = email!.split("@");
-                return part[0];
-              })
-              .join(", "),
+            .map((st) => {
+              const check = item.assignedId.includes(st.id);
+              if (check) {
+                return st.email;
+              } else {
+                return "";
+              }
+            })
+            .map((email) => {
+              const part = email!.split("@");
+              return part[0];
+            })
+            .join(", "),
 
         createdAt: moment(item.createdAt).format(formatDateSlash),
 

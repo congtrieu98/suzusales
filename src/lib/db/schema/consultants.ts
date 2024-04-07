@@ -48,7 +48,7 @@ export type Consultant = z.infer<typeof consultantSchema>;
 export type NewConsultant = z.infer<typeof insertConsultantSchema>;
 export type NewConsultantParams = z.infer<typeof insertConsultantParamsCustom>;
 export type UpdateConsultantParams = z.infer<typeof updateConsultantParams>;
-export type ConsultantId = z.infer<typeof consultantIdSchema>["id"];
+export type ConsultantId = z.infer<typeof consultantIdSchema>["id"][];
 
 // this type infers the return from getConsultants() - meaning it will include any joins
 export type CompleteConsultant = Awaited<

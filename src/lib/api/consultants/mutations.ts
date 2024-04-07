@@ -18,6 +18,7 @@ export const createConsultant = async (consultant: NewConsultantParams) => {
     ConsultantStaff: {
       create: consultant.assignedId.map((item) => ({
         staffId: item,
+        userId: session?.user.id
       })),
     },
   };
