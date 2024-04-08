@@ -33,39 +33,6 @@ export type UpdateConsultantStafParams = z.infer<
 export type ConsultantStafId = z.infer<typeof consultantStafIdSchema>["id"];
 
 // this type infers the return from getConsultantStaff() - meaning it will include any joins
-// export type CompleteConsultantStaff = Awaited<
-//   ReturnType<typeof getConsultantStaffs>
-// >["consultantStaff"][number];
-
-export type CompleteConsultantStaff = {
-  id: string;
-  customerName: string;
-  projectName: string;
-  content: string;
-  airDate: Date;
-  status: string;
-  creator: string;
-  userId: string;
-  assignedId: string[];
-  createdAt: Date;
-  updatedAt: Date;
-  consultant: {
-    id: string;
-    customerName: string;
-    projectName: string;
-    content: string;
-    airDate: Date;
-    status: string;
-    creator: string;
-    userId: string;
-    assignedId: string[];
-    createdAt: Date;
-    updatedAt: Date;
-  };
-  staff: {
-    id: string;
-    email: string;
-    createdAt: Date;
-    role: string;
-  };
-};
+export type CompleteConsultantStaff = Awaited<
+  ReturnType<typeof getConsultantStaffs>
+>["consultantStaff"][number];

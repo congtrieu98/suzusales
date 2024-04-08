@@ -14,7 +14,17 @@ import {
 import { useOptimisticContracts } from "@/app/(app)/contracts/useOptimisticContracts";
 import { Button } from "@/components/ui/button";
 import ContractForm from "./ContractForm";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 
 type TOpenModal = (contract?: CompleteContract) => void;
 
@@ -34,7 +44,9 @@ export default function ContractList({
     consultants
   );
   const [open, setOpen] = useState(false);
-  const [activeContract, setActiveContract] = useState<CompleteContract | null>(null);
+  const [activeContract, setActiveContract] = useState<CompleteContract | null>(
+    null
+  );
   const openModal = (contract?: CompleteContract) => {
     setOpen(true);
     contract ? setActiveContract(contract) : setActiveContract(null);
@@ -105,10 +117,35 @@ const Contract = ({
       )}
     >
       <div className="w-full">
-        <div>
+        <div className="flex justify-between ">
           <Button variant={"link"} asChild>
             <Link href={basePath + "/" + contract.id}>Contract details</Link>
           </Button>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <div className="mt-2 mr-2 cursor-pointer">
+                <Trash2 size={20} />
+              </div>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Are you sure you want to delete this contract?
+                </AlertDialogTitle>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => {
+                    console.log("delete contracts");
+                  }}
+                >
+                  Ok
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </li>

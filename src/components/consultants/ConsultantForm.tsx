@@ -62,6 +62,11 @@ const ConsultantForm = ({
     moment().format(formatDatetime).toString()
   );
   const { data: session } = useSession();
+  const staffIdByUser = staffs.filter((stId) => {
+    if (stId?.email === (session?.user.email as string)) {
+      return stId;
+    }
+  });
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string[]>([]);
@@ -111,7 +116,11 @@ const ConsultantForm = ({
       creator: session?.user.name as string,
       airDate: moment(airDate).toDate(),
       //@ts-ignore
-      assignedId: selectedOption?.map((item) => item?.value),
+      assignedId:
+        session?.user.role !== "ADMIN"
+          ? staffIdByUser.map((rs) => rs.id)
+          : //@ts-ignore
+            selectedOption?.map((item) => item?.value),
       ...values,
     };
     try {
@@ -130,14 +139,23 @@ const ConsultantForm = ({
                 ? consultant?.airDate
                 : moment(airDate).toDate(),
               creator: session?.user.name as string,
-              assignedId: selectedOption,
+              assignedId:
+                session?.user.role !== "ADMIN"
+                  ? staffIdByUser.map((rs) => rs.id)
+                  : consultant?.assignedId?.length > 0
+                  ? consultant?.assignedId
+                  : selectedOption,
             })
           : await createConsultantAction({
               ...values,
               airDate: moment(airDate).toDate(),
               creator: session?.user.name as string,
               //@ts-ignore
-              assignedId: selectedOption.map((staff) => staff?.value),
+              assignedId:
+                session?.user.role !== "ADMIN"
+                  ? staffIdByUser.map((rs) => rs.id)
+                  : //@ts-ignore
+                    selectedOption.map((staff) => staff?.value),
             });
         setSelectedOption([]);
         const errorFormatted = {

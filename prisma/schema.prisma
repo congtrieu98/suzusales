@@ -148,7 +148,7 @@ model ConsultantStaff {
   id           String     @id @default(cuid())
   consultantId String
   staffId      String
-  userId       String
+  email       String
   consultant   Consultant @relation(fields: [consultantId], references: [id], onDelete: Cascade)
   staff        Staff      @relation(fields: [staffId], references: [id], onDelete: Cascade)
 }

@@ -2,7 +2,10 @@ import { Suspense } from "react";
 
 import Loading from "@/app/loading";
 import ConsultantList from "@/components/consultants/ConsultantList";
-import { getConsultantById, getConsultants } from "@/lib/api/consultants/queries";
+import {
+  getConsultantByIds,
+  getConsultants,
+} from "@/lib/api/consultants/queries";
 
 import { checkAuth, getUserAuth } from "@/lib/auth/utils";
 import { getStaffs } from "@/lib/api/staffs/queries";
@@ -29,27 +32,27 @@ const Consultants = async () => {
   const { consultants } = await getConsultants();
   const { staffs } = await getStaffs();
 
-  const a = consultants.map(item => {
+  let arrayIdStaff = [] as string[];
+  consultants.map((item) => {
     if (item?.ConsultantStaff?.length > 0) {
-      let arrayIdStaff = [] as string[]
-      item?.ConsultantStaff.map(async rs => {
-        console.log("userIdStaff:", rs?.userId)
-        console.log("userId:", session?.user?.id)
-        if (rs?.userId === session?.user?.id) {
-          arrayIdStaff.push(rs.consultantId)
-          await getConsultantById(arrayIdStaff)
+      item?.ConsultantStaff.map((rs) => {
+        if (rs?.email === session?.user?.email) {
+          arrayIdStaff.push(rs.consultantId);
         }
-
-      })
+      });
     }
-  })
-
-  console.log("data", a)
-
+  });
+  const consutanByUser = await getConsultantByIds(arrayIdStaff);
 
   return (
     <Suspense fallback={<Loading />}>
-      <ConsultantList consultants={consultants} staffs={staffs} />
+      <ConsultantList
+        //@ts-ignore
+        consultants={
+          session?.user?.role === "ADMIN" ? consultants : consutanByUser
+        }
+        staffs={staffs}
+      />
     </Suspense>
   );
 };

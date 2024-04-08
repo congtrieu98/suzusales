@@ -1,9 +1,12 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
-import { getConsultantByIdWithContracts } from "@/lib/api/consultants/queries";
+import {
+  getConsultantById,
+  getConsultantByIdWithContracts,
+} from "@/lib/api/consultants/queries";
 import OptimisticConsultant from "./OptimisticConsultant";
-import { checkAuth } from "@/lib/auth/utils";
+import { checkAuth, getUserAuth } from "@/lib/auth/utils";
 import ContractList from "@/components/contracts/ContractList";
 
 import { BackButton } from "@/components/shared/BackButton";

@@ -22,7 +22,7 @@ import { CompleteStaff } from "@/lib/db/schema/staffs";
 import { useSession } from "next-auth/react";
 
 type TOpenModal = (consultant?: Consultant) => void;
-// type CompleteConsultant = {
+
 //   id: string;
 //   customerName: string;
 //   projectName: string;
@@ -63,7 +63,6 @@ export default function ConsultantList({
   consultants: CompleteConsultant[];
   staffs: CompleteStaff[];
 }) {
-  const { data: session } = useSession();
   const { optimisticConsultants, addOptimisticConsultant } =
     useOptimisticConsultants(consultants);
   const [open, setOpen] = useState(false);
@@ -77,65 +76,39 @@ export default function ConsultantList({
   const closeModal = () => setOpen(false);
 
   const optimisticConsultantsCustom = optimisticConsultants.map((item) => {
-    console.log("item:", item);
-    if (session?.user.role !== "ADMIN") {
-      console.log("vaof ddaay")
-      return {
-        id: item.id,
+    return {
+      id: item.id,
 
-        customerName: item.customerName,
+      customerName: item?.customerName,
 
-        projectName: item.projectName,
+      projectName: item?.projectName,
 
-        content: item.content,
+      content: item?.content,
 
-        airDate: item.airDate,
+      airDate: item?.airDate,
 
-        status: item.status,
+      status: item?.status,
 
-        creator: item.creator,
+      userId: item?.userId,
 
-        userId: item.userId,
+      creator: item?.user?.name,
 
-        // assignedId: item?.staff.email.split("@")[0],
-
-        createdAt: moment(item.createdAt).format(formatDateSlash),
-
-        updatedAt: item.updatedAt,
-      };
-    } else {
-      return {
-        id: item.id,
-
-        customerName: item?.customerName,
-
-        projectName: item?.projectName,
-
-        content: item?.content,
-
-        airDate: item?.airDate,
-
-        status: item?.status,
-
-        creator: item?.creator,
-
-        userId: item?.userId,
-        assignedId: staffs
-          .map((st) => {
-            const check = item?.assignedId.includes(st.id);
-            if (check) {
-              return st.email;
-            } else {
-              return "";
-            }
-          })
-          .map((email) => {
-            const part = email!.split("@");
-            return part[0];
-          })
-          .join(",")
-          .startsWith(",")
-          ? staffs
+      assignedId: staffs
+        .map((st) => {
+          const check = item?.assignedId.includes(st.id);
+          if (check) {
+            return st.email;
+          } else {
+            return "";
+          }
+        })
+        .map((email) => {
+          const part = email!.split("@");
+          return part[0];
+        })
+        .join(",")
+        .startsWith(",")
+        ? staffs
             .map((st) => {
               const check = item.assignedId.includes(st.id);
               if (check) {
@@ -150,7 +123,7 @@ export default function ConsultantList({
             })
             .join(",")
             .slice(1)
-          : staffs
+        : staffs
             .map((st) => {
               const check = item.assignedId.includes(st.id);
               if (check) {
@@ -165,15 +138,11 @@ export default function ConsultantList({
             })
             .join(", "),
 
-        createdAt: moment(item.createdAt).format(formatDateSlash),
+      createdAt: moment(item.createdAt).format(formatDateSlash),
 
-        updatedAt: item.updatedAt,
-      };
-    }
+      updatedAt: item.updatedAt,
+    };
   });
-
-  console.log("consultants", consultants);
-  console.log("role", session?.user?.role);
 
   return (
     <div>
@@ -199,7 +168,11 @@ export default function ConsultantList({
         <EmptyState openModal={openModal} />
       ) : (
         <div className="container mx-auto py-10">
-          <DataTable columns={columns} data={optimisticConsultantsCustom} />
+          <DataTable
+            columns={columns}
+            //@ts-ignore
+            data={optimisticConsultantsCustom}
+          />
         </div>
       )}
     </div>

@@ -35,15 +35,6 @@ import { TAddOptimistic } from "@/app/(app)/consultants/useOptimisticConsultants
 import { ConsultantTypeColumns } from "./columns";
 import { deleteConsultantAction } from "@/lib/actions/consultants";
 import { Action } from "@/lib/utils";
-import Loading from "@/app/loading";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -64,9 +55,12 @@ export function DataTable<TData, TValue>({
     );
 
   const updatePage: TAddOptimistic = (input) =>
-    setOptimisticPage({
-      ...input.data,
-    });
+    setOptimisticPage(
+      //@ts-ignore
+      {
+        ...input.data,
+      }
+    );
 
   const onSuccess = (
     action: Action,

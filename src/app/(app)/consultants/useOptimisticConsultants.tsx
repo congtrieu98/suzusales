@@ -23,6 +23,7 @@ export const useOptimisticConsultants = (consultants: CompleteConsultant[]) => {
 
       switch (action.action) {
         case "create":
+          //@ts-ignore
           return currentState.length === 0
             ? [optimisticConsultant]
             : [...currentState, optimisticConsultant];

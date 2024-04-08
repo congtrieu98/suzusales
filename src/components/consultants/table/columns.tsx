@@ -22,6 +22,19 @@ export type ConsultantTypeColumns = {
   assignedId: string[];
   createdAt: Date;
   updatedAt: Date;
+  ConsultantStaff: {
+    id: string;
+    consultantId: string;
+    staffId: string;
+    email: string;
+  }[];
+  user: {
+    id: string;
+    name: string | null;
+    email: string | null;
+    emailVerified: Date | null;
+    image: string | null;
+  };
 };
 
 export const columns: ColumnDef<ConsultantTypeColumns>[] = [
@@ -58,6 +71,10 @@ export const columns: ColumnDef<ConsultantTypeColumns>[] = [
   {
     accessorKey: "status",
     header: "Status",
+  },
+  {
+    accessorKey: "creator",
+    header: "Creator",
   },
   {
     accessorKey: "assignedId",

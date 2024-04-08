@@ -61,7 +61,6 @@ export default function OptimisticConsultant({
           optimisticConsultant.id === "optimistic" ? "animate-pulse" : ""
         )}
       >
-        {/* {JSON.stringify(optimisticConsultant, null, 2)} */}
         <div className="">
           <Card>
             <CardHeader>
@@ -128,7 +127,9 @@ export default function OptimisticConsultant({
                           {staffs
                             .map((st) => {
                               const check =
-                                optimisticConsultant.assignedId.includes(st.id);
+                                optimisticConsultant?.assignedId.includes(
+                                  st.id
+                                );
                               if (check) {
                                 return st.email;
                               } else {
