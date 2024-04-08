@@ -27,7 +27,7 @@ export default async function AppLayout({
     firstName: session?.user?.name as string,
     email: session?.user?.email as string,
   });
-
+  console.log("server side");
   return (
     <main className={inter.className}>
       <NextAuthProvider>

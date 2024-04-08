@@ -1,3 +1,5 @@
+"use client";
+
 import { z } from "zod";
 
 import { useState, useTransition } from "react";
@@ -20,6 +22,7 @@ import {
   type Consultant,
   insertConsultantParams,
 } from "@/lib/db/schema/consultants";
+import { type CompleteStaff } from "@/lib/db/schema/staffs";
 import {
   createConsultantAction,
   deleteConsultantAction,
@@ -35,15 +38,18 @@ import {
   SelectValue,
 } from "../ui/select";
 
+import Selector from "react-select";
+
 const ConsultantForm = ({
   consultant,
   openModal,
   closeModal,
   addOptimistic,
   postSuccess,
+  staffs,
 }: {
   consultant?: Consultant | null;
-
+  staffs: CompleteStaff[];
   openModal?: (consultant?: Consultant) => void;
   closeModal?: () => void;
   addOptimistic?: TAddOptimistic;
@@ -56,8 +62,14 @@ const ConsultantForm = ({
     moment().format(formatDatetime).toString()
   );
   const { data: session } = useSession();
+  const staffIdByUser = staffs.filter((stId) => {
+    if (stId?.email === (session?.user.email as string)) {
+      return stId;
+    }
+  });
 
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedOption, setSelectedOption] = useState<string[]>([]);
   const [pending, startMutation] = useTransition();
 
   const router = useRouter();
@@ -87,6 +99,7 @@ const ConsultantForm = ({
     const consultantParsed = await insertConsultantParams.safeParseAsync({
       ...payload,
     });
+
     if (!consultantParsed.success) {
       setErrors(consultantParsed?.error.flatten().fieldErrors);
       return;
@@ -94,6 +107,7 @@ const ConsultantForm = ({
 
     closeModal && closeModal();
     const values = consultantParsed.data;
+
     const pendingConsultant: Consultant = {
       updatedAt: consultant?.updatedAt ?? new Date(),
       createdAt: consultant?.createdAt ?? new Date(),
@@ -101,6 +115,12 @@ const ConsultantForm = ({
       userId: consultant?.userId ?? "",
       creator: session?.user.name as string,
       airDate: moment(airDate).toDate(),
+      //@ts-ignore
+      assignedId:
+        session?.user.role !== "ADMIN"
+          ? staffIdByUser.map((rs) => rs.id)
+          : //@ts-ignore
+            selectedOption?.map((item) => item?.value),
       ...values,
     };
     try {
@@ -113,19 +133,31 @@ const ConsultantForm = ({
 
         const error = editing
           ? await updateConsultantAction({
-            ...values,
-            id: consultant.id,
-            airDate: consultant?.airDate
-              ? consultant?.airDate
-              : moment(airDate).toDate(),
-            creator: session?.user.name as string,
-          })
+              ...values,
+              id: consultant.id,
+              airDate: consultant?.airDate
+                ? consultant?.airDate
+                : moment(airDate).toDate(),
+              creator: session?.user.name as string,
+              assignedId:
+                session?.user.role !== "ADMIN"
+                  ? staffIdByUser.map((rs) => rs.id)
+                  : consultant?.assignedId?.length > 0
+                  ? consultant?.assignedId
+                  : selectedOption,
+            })
           : await createConsultantAction({
-            ...values,
-            airDate: moment(airDate).toDate(),
-            creator: session?.user.name as string,
-          });
-
+              ...values,
+              airDate: moment(airDate).toDate(),
+              creator: session?.user.name as string,
+              //@ts-ignore
+              assignedId:
+                session?.user.role !== "ADMIN"
+                  ? staffIdByUser.map((rs) => rs.id)
+                  : //@ts-ignore
+                    selectedOption.map((staff) => staff?.value),
+            });
+        setSelectedOption([]);
         const errorFormatted = {
           error: error ?? "Error",
           values: pendingConsultant,
@@ -141,6 +173,28 @@ const ConsultantForm = ({
       }
     }
   };
+
+  const handleChangeSelectAssign = (values: string[]) => {
+    if (editing) {
+      //@ts-ignore
+      const newValues = values.map((vl) => vl.value);
+      const mergedResult = Array.from(
+        new Set([...consultant?.assignedId, ...newValues])
+      );
+
+      setSelectedOption(mergedResult);
+    } else {
+      setSelectedOption(values);
+    }
+  };
+  console.log("selectedOptionChange:", selectedOption);
+
+  const options = staffs.map((s) => ({
+    value: s.id,
+    label: s.email,
+  }));
+
+  // console.log(selectedOption.map((staff) => staff?.value));
 
   return (
     <form action={handleSubmit} onChange={handleChange} className={""}>
@@ -198,7 +252,7 @@ const ConsultantForm = ({
             errors?.content ? "text-destructive" : ""
           )}
         >
-          Content
+          Description
         </Label>
         <Input
           type="text"
@@ -212,6 +266,45 @@ const ConsultantForm = ({
           <div className="h-6" />
         )}
       </div>
+      {session?.user.role === "ADMIN" && (
+        <div>
+          <Label
+            className={cn(
+              "mb-2 inline-block",
+              errors?.status ? "text-destructive" : ""
+            )}
+          >
+            Assigned
+          </Label>
+          <Selector
+            name="assignedId"
+            //@ts-ignore
+            defaultValue={
+              editing
+                ? staffs
+                    .filter((it) => consultant?.assignedId.includes(it.id))
+                    .map((rs) => ({
+                      value: rs?.id,
+                      label: rs?.email,
+                    }))
+                : selectedOption
+            }
+            //@ts-ignore
+            onChange={handleChangeSelectAssign}
+            //@ts-ignore
+            options={options}
+            isMulti
+            isSearchable
+          />
+          {errors?.assignedId ? (
+            <p className="text-xs text-destructive mt-2">
+              {errors.assignedId[0]}
+            </p>
+          ) : (
+            <div className="h-6" />
+          )}
+        </div>
+      )}
       <div>
         <Label
           className={cn(

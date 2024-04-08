@@ -3,64 +3,68 @@ import { getUserAuth } from "@/lib/auth/utils";
 import {
   type ConsultantId,
   consultantIdSchema,
+  ConsultantIds,
 } from "@/lib/db/schema/consultants";
 
 export const getConsultants = async () => {
-  const { session } = await getUserAuth();
-  if (session?.user.role === "ADMIN") {
-    const c = await db.consultant.findMany({
+  const c = await db.consultant.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      ConsultantStaff: true,
+      user: true,
+    },
+  });
+  return { consultants: c };
+};
+
+export const getConsultantByIds = async (ids: ConsultantIds) => {
+  const ConsultantIds = ids;
+  try {
+    const consultants = await db.consultant.findMany({
+      where: {
+        id: {
+          in: ConsultantIds,
+        },
+      },
+      include: {
+        ConsultantStaff: true,
+        user: true,
+      },
       orderBy: {
         createdAt: "desc",
       },
     });
-    return { consultants: c };
-  } else {
-    const c = await db.consultant.findMany({
-      where: { userId: session?.user.id! },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-    return { consultants: c };
+    return consultants;
+  } catch (error) {
+    console.error("Error retrieving consultants:", error);
+    throw error;
+  } finally {
+    await db.$disconnect();
   }
 };
 
 export const getConsultantById = async (id: ConsultantId) => {
-  const { session } = await getUserAuth();
   const { id: consultantId } = consultantIdSchema.parse({ id });
-  if (session?.user.role === "ADMIN") {
-    const c = await db.consultant.findFirst({
-      where: { id: consultantId },
-    });
-    return { consultant: c };
-  } else {
-    const c = await db.consultant.findFirst({
-      where: { id: consultantId, userId: session?.user.id! },
-    });
-    return { consultant: c };
-  }
+  const c = await db.consultant.findFirst({
+    where: { id: consultantId },
+  });
+  return c;
 };
 
 export const getConsultantByIdWithContracts = async (id: ConsultantId) => {
-  const { session } = await getUserAuth();
   const { id: consultantId } = consultantIdSchema.parse({ id });
-  if (session?.user.role === "ADMIN") {
-    const c = await db.consultant.findFirst({
-      where: { id: consultantId },
-      include: { Contract: { include: { consultant: true } } },
-    });
-    if (c === null) return { consultant: null };
-    const { Contract, ...consultant } = c;
 
-    return { consultant, contracts: Contract };
-  } else {
-    const c = await db.consultant.findFirst({
-      where: { id: consultantId, userId: session?.user.id! },
-      include: { Contract: { include: { consultant: true } } },
-    });
-    if (c === null) return { consultant: null };
-    const { Contract, ...consultant } = c;
+  const c = await db.consultant.findFirst({
+    where: { id: consultantId },
+    include: {
+      Contract: { include: { consultant: true } },
+      ConsultantStaff: true,
+    },
+  });
+  if (c === null) return { consultant: null };
+  const { Contract, ...consultant } = c;
 
-    return { consultant, contracts: Contract };
-  }
+  return { consultant, contracts: Contract };
 };

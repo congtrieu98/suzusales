@@ -14,12 +14,14 @@ export const insertConsultantParams = baseSchema
     airDate: z.coerce.date(),
     customerName: z.string().min(1, { message: "Field is required" }),
     projectName: z.string().min(1, { message: "Field is required" }),
+    assignedId: z.string().min(1, { message: "Field is required" }),
   })
   .omit({
     id: true,
     userId: true,
     creator: true,
     airDate: true,
+    assignedId: true,
   });
 
 export const insertConsultantParamsCustom = baseSchema
@@ -47,6 +49,7 @@ export type NewConsultant = z.infer<typeof insertConsultantSchema>;
 export type NewConsultantParams = z.infer<typeof insertConsultantParamsCustom>;
 export type UpdateConsultantParams = z.infer<typeof updateConsultantParams>;
 export type ConsultantId = z.infer<typeof consultantIdSchema>["id"];
+export type ConsultantIds = z.infer<typeof consultantIdSchema>["id"][];
 
 // this type infers the return from getConsultants() - meaning it will include any joins
 export type CompleteConsultant = Awaited<

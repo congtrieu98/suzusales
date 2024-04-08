@@ -99,18 +99,20 @@ model PageLink {
 }
 
 model Consultant {
-  id           String     @id @default(cuid())
-  customerName String
-  projectName  String
-  content      String
-  airDate      DateTime
-  status       String
-  creator      String
-  userId       String
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  Contract     Contract[]
+  id              String            @id @default(cuid())
+  customerName    String
+  projectName     String
+  content         String
+  airDate         DateTime
+  status          String
+  creator         String
+  userId          String
+  assignedId      String[]
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  Contract        Contract[]
+  ConsultantStaff ConsultantStaff[]
 }
 
 model Contract {
@@ -134,10 +136,20 @@ model Contract {
 }
 
 model Staff {
-  id    String @id @default(cuid())
-  email String
-  role  String
-
+  id        String   @id @default(cuid())
+  email     String
+  role      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  ConsultantStaff ConsultantStaff[]
+}
+
+model ConsultantStaff {
+  id           String     @id @default(cuid())
+  consultantId String
+  staffId      String
+  email       String
+  consultant   Consultant @relation(fields: [consultantId], references: [id], onDelete: Cascade)
+  staff        Staff      @relation(fields: [staffId], references: [id], onDelete: Cascade)
 }

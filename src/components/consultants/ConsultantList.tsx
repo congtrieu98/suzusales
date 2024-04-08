@@ -6,8 +6,8 @@ import { usePathname } from "next/navigation";
 
 import { cn, formatDateSlash } from "@/lib/utils";
 import {
-  type Consultant,
   CompleteConsultant,
+  type Consultant,
 } from "@/lib/db/schema/consultants";
 import Modal from "@/components/shared/Modal";
 
@@ -18,13 +18,50 @@ import { PlusIcon } from "lucide-react";
 import { DataTable } from "./table/data-table";
 import { columns } from "./table/columns";
 import moment from "moment";
+import { CompleteStaff } from "@/lib/db/schema/staffs";
+import { useSession } from "next-auth/react";
 
 type TOpenModal = (consultant?: Consultant) => void;
 
+//   id: string;
+//   customerName: string;
+//   projectName: string;
+//   content: string;
+//   airDate: Date;
+//   status: string;
+//   creator: string;
+//   userId: string;
+//   assignedId: string[];
+//   createdAt: Date;
+//   updatedAt: Date;
+//   consultant: {
+//     id: string;
+//     customerName: string;
+//     projectName: string;
+//     content: string;
+//     airDate: Date;
+//     status: string;
+//     creator: string;
+//     userId: string;
+//     assignedId: string[];
+//     createdAt: Date;
+//     updatedAt: Date;
+//     // Các trường khác nếu có
+//   };
+//   staff: {
+//     createdAt: Date;
+//     email: string;
+//     id: string;
+//     role: string;
+//   };
+// }[];
+
 export default function ConsultantList({
   consultants,
+  staffs,
 }: {
   consultants: CompleteConsultant[];
+  staffs: CompleteStaff[];
 }) {
   const { optimisticConsultants, addOptimisticConsultant } =
     useOptimisticConsultants(consultants);
@@ -37,18 +74,75 @@ export default function ConsultantList({
     consultant ? setActiveConsultant(consultant) : setActiveConsultant(null);
   };
   const closeModal = () => setOpen(false);
-  const optimisticConsultantsCustom = optimisticConsultants.map((item) => ({
-    id: item.id,
-    customerName: item.customerName,
-    projectName: item.projectName,
-    content: item.content,
-    airDate: item.airDate,
-    status: item.status,
-    creator: item.creator,
-    userId: item.userId,
-    createdAt: moment(item.createdAt).format(formatDateSlash),
-    updatedAt: item.updatedAt,
-  }));
+
+  const optimisticConsultantsCustom = optimisticConsultants.map((item) => {
+    return {
+      id: item.id,
+
+      customerName: item?.customerName,
+
+      projectName: item?.projectName,
+
+      content: item?.content,
+
+      airDate: item?.airDate,
+
+      status: item?.status,
+
+      userId: item?.userId,
+
+      creator: item?.user?.name,
+
+      assignedId: staffs
+        .map((st) => {
+          const check = item?.assignedId.includes(st.id);
+          if (check) {
+            return st.email;
+          } else {
+            return "";
+          }
+        })
+        .map((email) => {
+          const part = email!.split("@");
+          return part[0];
+        })
+        .join(",")
+        .startsWith(",")
+        ? staffs
+            .map((st) => {
+              const check = item.assignedId.includes(st.id);
+              if (check) {
+                return st.email;
+              } else {
+                return "";
+              }
+            })
+            .map((email) => {
+              const part = email!.split("@");
+              return part[0];
+            })
+            .join(",")
+            .slice(1)
+        : staffs
+            .map((st) => {
+              const check = item.assignedId.includes(st.id);
+              if (check) {
+                return st.email;
+              } else {
+                return "";
+              }
+            })
+            .map((email) => {
+              const part = email!.split("@");
+              return part[0];
+            })
+            .join(", "),
+
+      createdAt: moment(item.createdAt).format(formatDateSlash),
+
+      updatedAt: item.updatedAt,
+    };
+  });
 
   return (
     <div>
@@ -62,6 +156,7 @@ export default function ConsultantList({
           addOptimistic={addOptimisticConsultant}
           openModal={openModal}
           closeModal={closeModal}
+          staffs={staffs}
         />
       </Modal>
       <div className="absolute right-0 top-0 ">
@@ -72,15 +167,6 @@ export default function ConsultantList({
       {optimisticConsultants.length === 0 ? (
         <EmptyState openModal={openModal} />
       ) : (
-        // <ul>
-        //   {optimisticConsultants.map((consultant) => (
-        //     <Consultant
-        //       consultant={consultant}
-        //       key={consultant.id}
-        //       openModal={openModal}
-        //     />
-        //   ))}
-        // </ul>
         <div className="container mx-auto py-10">
           <DataTable
             columns={columns}
@@ -101,6 +187,7 @@ const Consultant = ({
   openModal: TOpenModal;
 }) => {
   const optimistic = consultant.id === "optimistic";
+
   const deleting = consultant.id === "delete";
   const mutating = optimistic || deleting;
   const pathname = usePathname();
