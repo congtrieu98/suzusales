@@ -21,13 +21,13 @@ export default async function AppLayout({
   await checkAuth();
   const session = (await getServerSession(authOptions)) as Session;
 
-  const novu = new Novu(process.env.NOVU_SECRET_API_KEY as string);
+  // const novu = new Novu(process.env.NOVU_SECRET_API_KEY as string);
 
-  await novu.subscribers.identify(session?.user?.id, {
-    firstName: session?.user?.name as string,
-    email: session?.user?.email as string,
-  });
-  console.log("server side");
+  // await novu.subscribers.identify(session?.user?.id, {
+  //   firstName: session?.user?.name as string,
+  //   email: session?.user?.email as string,
+  // });
+
   return (
     <main className={inter.className}>
       <NextAuthProvider>

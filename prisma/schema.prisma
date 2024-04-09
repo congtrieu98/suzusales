@@ -59,6 +59,8 @@ model User {
   pageLinks     PageLink[]
   consultants   Consultant[]
   contracts     Contract[]
+  companies     Company[]
+  contacts      Contact[]
 }
 
 model VerificationToken {
@@ -148,7 +150,27 @@ model ConsultantStaff {
   id           String     @id @default(cuid())
   consultantId String
   staffId      String
-  email       String
+  email        String
   consultant   Consultant @relation(fields: [consultantId], references: [id], onDelete: Cascade)
   staff        Staff      @relation(fields: [staffId], references: [id], onDelete: Cascade)
+}
+
+model Company {
+  id         String   @id @default(cuid())
+  name       String
+  salesOwner String
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

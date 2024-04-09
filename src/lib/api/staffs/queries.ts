@@ -9,8 +9,8 @@ export const getStaffs = async () => {
 export const getStaffById = async (id: StaffId) => {
   const { id: staffId } = staffIdSchema.parse({ id });
   const s = await db.staff.findFirst({
-    where: { id: staffId}});
+    where: { id: staffId }
+  });
   return { staff: s };
 };
-
 
