@@ -8,10 +8,9 @@ import {
 } from "@/lib/api/companies/mutations";
 import {
   CompanyId,
-  NewCompanyParams,
+  NewCompanyParamsCustom,
   UpdateCompanyParams,
   companyIdSchema,
-  insertCompanyParams,
   updateCompanyParams,
 } from "@/lib/db/schema/companies";
 
@@ -27,10 +26,15 @@ const handleErrors = (e: unknown) => {
 
 const revalidateCompanies = () => revalidatePath("/companies");
 
-export const createCompanyAction = async (input: NewCompanyParams) => {
+export const createCompanyAction = async (input: NewCompanyParamsCustom) => {
   try {
-    const payload = insertCompanyParams.parse(input);
-    await createCompany(payload);
+    const payloadCompany = {
+      name: input.name,
+      salesOwner: input.salesOwner,
+    };
+
+    const payloadContact = input.dataContact;
+    await createCompany(payloadCompany, payloadContact);
     revalidateCompanies();
   } catch (e) {
     return handleErrors(e);

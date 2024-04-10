@@ -14,8 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useBackPath } from "@/components/shared/BackButton";
 
-
-
 import { type Company, insertCompanyParams } from "@/lib/db/schema/companies";
 import {
   createCompanyAction,
@@ -23,23 +21,29 @@ import {
   updateCompanyAction,
 } from "@/lib/actions/companies";
 import { CompleteUser } from "@/lib/db/schema/users";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import { CircleFadingPlus, Mail, Trash2, User } from "lucide-react";
 import moment from "moment";
 
 interface IContact {
-  name?: string,
-  email?: string
+  name?: string;
+  email?: string;
 }
 const CompanyForm = ({
-
   company,
   openModal,
   closeModal,
   addOptimistic,
   postSuccess,
-  users
+  users,
 }: {
   company?: Company | null;
 
@@ -47,7 +51,7 @@ const CompanyForm = ({
   closeModal?: () => void;
   addOptimistic?: TAddOptimistic;
   postSuccess?: () => void;
-  users: CompleteUser[] | null
+  users: CompleteUser[] | null;
 }) => {
   const { errors, hasErrors, setErrors, handleChange } =
     useValidatedForm<Company>(insertCompanyParams);
@@ -55,20 +59,15 @@ const CompanyForm = ({
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [pending, startMutation] = useTransition();
-  const [dataContact, setDataContact] = useState([
-    {
-      name: '',
-      email: ''
-    }
-  ])
+  const [dataContact, setDataContact] = useState<IContact[]>([]);
+  const [showInputs, setShowInputs] = useState(false);
 
   const router = useRouter();
   const backpath = useBackPath("companies");
 
-
   const onSuccess = (
     action: Action,
-    data?: { error: string; values: Company },
+    data?: { error: string; values: Company }
   ) => {
     const failed = Boolean(data?.error);
     if (failed) {
@@ -88,7 +87,9 @@ const CompanyForm = ({
     setErrors(null);
 
     const payload = Object.fromEntries(data.entries());
-    const companyParsed = await insertCompanyParams.safeParseAsync({ ...payload });
+    const companyParsed = await insertCompanyParams.safeParseAsync({
+      ...payload,
+    });
     if (!companyParsed.success) {
       setErrors(companyParsed?.error.flatten().fieldErrors);
       return;
@@ -106,28 +107,27 @@ const CompanyForm = ({
     };
     try {
       startMutation(async () => {
-        addOptimistic && addOptimistic({
-          data: pendingCompany,
-          action: editing ? "update" : "create",
-        });
+        addOptimistic &&
+          addOptimistic({
+            data: pendingCompany,
+            action: editing ? "update" : "create",
+          });
 
         const error = editing
           ? await updateCompanyAction({ ...values, id: company.id })
-          : await createCompanyAction(
-            {
+          : await createCompanyAction({
               ...values,
               //@ts-ignore
-              dataContact: dataContact
-            }
-          );
+              dataContact: dataContact,
+            });
 
         const errorFormatted = {
           error: error ?? "Error",
-          values: pendingCompany
+          values: pendingCompany,
         };
         onSuccess(
           editing ? "update" : "create",
-          error ? errorFormatted : undefined,
+          error ? errorFormatted : undefined
         );
       });
     } catch (e) {
@@ -140,13 +140,14 @@ const CompanyForm = ({
   const handleClickAdd = () => {
     // const time = moment.now()
     // setAddContact((prev) => [...prev, time])
-    setDataContact([...dataContact, { name: '', email: '' }]);
-  }
+    setShowInputs(true);
+    setDataContact([...dataContact, { name: "", email: "" }]);
+  };
   const handleDeleteContact = (value: IContact) => {
     if (dataContact.length > 0) {
       setDataContact((prev) => prev.filter((item) => item !== value));
     }
-  }
+  };
 
   const handChangeDataContact = (index: number, key: string, value: string) => {
     const newDataContact = [...dataContact];
@@ -158,7 +159,8 @@ const CompanyForm = ({
   // const addInput = () => {
   //   setDataContact([...dataContact, { name: '', email: '' }]);
   // };
-  console.log("dataContact:", dataContact)
+  console.log("dataContact:", dataContact);
+  console.log("error:", errors);
 
   return (
     <form action={handleSubmit} onChange={handleChange}>
@@ -167,7 +169,7 @@ const CompanyForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.name ? "text-destructive" : "",
+            errors?.name ? "text-destructive" : ""
           )}
         >
           Name
@@ -189,19 +191,22 @@ const CompanyForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.salesOwner ? "text-destructive" : "",
+            errors?.salesOwner ? "text-destructive" : ""
           )}
         >
           Sales Owner
         </Label>
-        <Select name="salesOwner" defaultValue={editing ? company?.salesOwner : ""}>
+        <Select
+          name="salesOwner"
+          defaultValue={editing ? company?.salesOwner : ""}
+        >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select owner" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
               {users?.map((item) => (
-                <SelectItem key={item.id} value={item.name as string} >
+                <SelectItem key={item.id} value={item.name as string}>
                   <Avatar className="h-8 w-8 flex justify-between items-start">
                     <AvatarImage src={item.image as string} />
                   </Avatar>
@@ -212,7 +217,9 @@ const CompanyForm = ({
           </SelectContent>
         </Select>
         {errors?.salesOwner ? (
-          <p className="text-xs text-destructive mt-2">{errors.salesOwner[0]}</p>
+          <p className="text-xs text-destructive mt-2">
+            {errors.salesOwner[0]}
+          </p>
         ) : (
           <div className="h-6" />
         )}
@@ -220,40 +227,54 @@ const CompanyForm = ({
 
       {/* show label add new contacts */}
       <div>
-        {dataContact.map((item, index) => {
-          return (
-            <div className="flex space-x-2 mb-2" key={index as number}>
-              <div className="flex">
-                <div className="bg-gray-200 p-1.5 rounded-l-md">
-                  <User />
+        {showInputs &&
+          dataContact.map((item, index) => {
+            return (
+              <div className="flex space-x-2 mb-2" key={index as number}>
+                <div className="flex">
+                  <div className="bg-gray-200 p-1.5 rounded-l-md">
+                    <User />
+                  </div>
+                  <Input
+                    name="username"
+                    type="text"
+                    placeholder="Name contact"
+                    className="rounded-l-none"
+                    onChange={(e) =>
+                      handChangeDataContact(index, "name", e.target.value)
+                    }
+                  />
                 </div>
-                <Input name="username"
-                  type="text"
-                  placeholder="Name contact"
-                  className="rounded-l-none" onChange={(e) => handChangeDataContact(index, 'name', e.target.value)} />
-              </div>
-              <div className="flex">
-                <div className="bg-gray-200 p-1.5 rounded-l-md">
-                  <Mail />
+                <div className="flex">
+                  <div className="bg-gray-200 p-1.5 rounded-l-md">
+                    <Mail />
+                  </div>
+                  <Input
+                    name="username"
+                    type="text"
+                    placeholder="Email contact"
+                    className="rounded-l-none"
+                    onChange={(e) =>
+                      handChangeDataContact(index, "email", e.target.value)
+                    }
+                  />
                 </div>
-                <Input name="username"
-                  type="text"
-                  placeholder="Email contact"
-                  className="rounded-l-none" onChange={(e) => handChangeDataContact(index, 'email', e.target.value)} />
+                <div
+                  className="bg-gray-200 p-1.5 rounded-md border cursor-pointer"
+                  onClick={() => handleDeleteContact(item)}
+                >
+                  <Trash2 />
+                </div>
               </div>
-              <div className="bg-gray-200 p-1.5 rounded-md border cursor-pointer"
-                onClick={() => handleDeleteContact(item)}
-              >
-                <Trash2 />
-              </div>
-            </div>
-          )
-        })}
+            );
+          })}
       </div>
 
       <div className="flex space-x-2 py-5 cursor-pointer hover:opacity-70">
         <CircleFadingPlus color="#426EB4" size={20} />
-        <div className="text-[#426EB4] text-sm" onClick={handleClickAdd}>Add new contacts</div>
+        <div className="text-[#426EB4] text-sm" onClick={handleClickAdd}>
+          Add new contacts
+        </div>
       </div>
       {/* Schema fields end */}
 
@@ -270,7 +291,8 @@ const CompanyForm = ({
             setIsDeleting(true);
             closeModal && closeModal();
             startMutation(async () => {
-              addOptimistic && addOptimistic({ action: "delete", data: company });
+              addOptimistic &&
+                addOptimistic({ action: "delete", data: company });
               const error = await deleteCompanyAction(company.id);
               setIsDeleting(false);
               const errorFormatted = {

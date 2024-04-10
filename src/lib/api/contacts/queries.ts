@@ -4,7 +4,14 @@ import { type ContactId, contactIdSchema } from "@/lib/db/schema/contacts";
 
 export const getContacts = async () => {
   const { session } = await getUserAuth();
-  const c = await db.contact.findMany({ where: {userId: session?.user.id!}});
+  const c = await db.contact.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      user: true,
+    },
+  });
   return { contacts: c };
 };
 
@@ -12,8 +19,7 @@ export const getContactById = async (id: ContactId) => {
   const { session } = await getUserAuth();
   const { id: contactId } = contactIdSchema.parse({ id });
   const c = await db.contact.findFirst({
-    where: { id: contactId, userId: session?.user.id!}});
+    where: { id: contactId, userId: session?.user.id! },
+  });
   return { contact: c };
 };
-
-

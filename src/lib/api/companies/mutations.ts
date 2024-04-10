@@ -5,22 +5,41 @@ import {
   UpdateCompanyParams,
   updateCompanySchema,
   insertCompanySchema,
-  companyIdSchema
+  companyIdSchema,
 } from "@/lib/db/schema/companies";
 import { getUserAuth } from "@/lib/auth/utils";
+import { NewContactParams } from "@/lib/db/schema/contacts";
 
-export const createCompany = async (company: NewCompanyParams) => {
+export const createCompany = async (
+  company: NewCompanyParams,
+  contacts: NewContactParams[]
+) => {
   const { session } = await getUserAuth();
-  const newCompany = insertCompanySchema.parse(
-    {
-      ...company,
-      userId: session?.user.id!,
 
-    });
-  console.log("NewCompanyParams:", company)
+  const newCompany = insertCompanySchema.parse({
+    ...company,
+    userId: session?.user.id!,
+  });
+
   try {
-    // const c = await db.company.create({ data: newCompany });
-    // return { company: c };
+    await db.$transaction(async (tx) => {
+      //create a company
+      const c = await tx.company.create({ data: newCompany });
+
+      //create contact with new company create
+      const contact = await Promise.all(
+        contacts.map(async (rs) => {
+          return tx.contact.create({
+            data: {
+              ...rs,
+              companyId: c.id,
+              userId: session?.user.id as string,
+            },
+          });
+        })
+      );
+      return { company: c, contact: contact };
+    });
   } catch (err) {
     const message = (err as Error).message ?? "Error, please try again";
     console.error(message);
@@ -28,12 +47,21 @@ export const createCompany = async (company: NewCompanyParams) => {
   }
 };
 
-export const updateCompany = async (id: CompanyId, company: UpdateCompanyParams) => {
+export const updateCompany = async (
+  id: CompanyId,
+  company: UpdateCompanyParams
+) => {
   const { session } = await getUserAuth();
   const { id: companyId } = companyIdSchema.parse({ id });
-  const newCompany = updateCompanySchema.parse({ ...company, userId: session?.user.id! });
+  const newCompany = updateCompanySchema.parse({
+    ...company,
+    userId: session?.user.id!,
+  });
   try {
-    const c = await db.company.update({ where: { id: companyId, userId: session?.user.id! }, data: newCompany })
+    const c = await db.company.update({
+      where: { id: companyId, userId: session?.user.id! },
+      data: newCompany,
+    });
     return { company: c };
   } catch (err) {
     const message = (err as Error).message ?? "Error, please try again";
@@ -46,7 +74,9 @@ export const deleteCompany = async (id: CompanyId) => {
   const { session } = await getUserAuth();
   const { id: companyId } = companyIdSchema.parse({ id });
   try {
-    const c = await db.company.delete({ where: { id: companyId, userId: session?.user.id! } })
+    const c = await db.company.delete({
+      where: { id: companyId, userId: session?.user.id! },
+    });
     return { company: c };
   } catch (err) {
     const message = (err as Error).message ?? "Error, please try again";
@@ -54,4 +84,3 @@ export const deleteCompany = async (id: CompanyId) => {
     throw { error: message };
   }
 };
-

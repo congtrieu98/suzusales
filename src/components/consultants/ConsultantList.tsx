@@ -19,7 +19,6 @@ import { DataTable } from "./table/data-table";
 import { columns } from "./table/columns";
 import moment from "moment";
 import { CompleteStaff } from "@/lib/db/schema/staffs";
-import { useSession } from "next-auth/react";
 
 type TOpenModal = (consultant?: Consultant) => void;
 

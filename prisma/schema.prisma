@@ -160,6 +160,7 @@ model Company {
   name       String
   salesOwner String
   userId     String
+  contacts   Contact[]
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -170,6 +171,8 @@ model Contact {
   name      String
   email     String
   userId    String
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

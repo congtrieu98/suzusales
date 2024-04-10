@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { cn } from "@/lib/utils";
+import { cn, formatDateSlash } from "@/lib/utils";
 import { type Company, CompleteCompany } from "@/lib/db/schema/companies";
 import Modal from "@/components/shared/Modal";
 
@@ -13,19 +13,21 @@ import { Button } from "@/components/ui/button";
 import CompanyForm from "./CompanyForm";
 import { PlusIcon } from "lucide-react";
 import { CompleteUser } from "@/lib/db/schema/users";
+import moment from "moment";
+import { DataTable } from "./table/data-table";
+import { columns } from "./table/columns";
 
 type TOpenModal = (company?: Company) => void;
 
 export default function CompanyList({
   companies,
-  users
+  users,
 }: {
   companies: CompleteCompany[];
-  users: CompleteUser[]
+  users: CompleteUser[];
 }) {
-  const { optimisticCompanies, addOptimisticCompany } = useOptimisticCompanies(
-    companies,
-  );
+  const { optimisticCompanies, addOptimisticCompany } =
+    useOptimisticCompanies(companies);
   const [open, setOpen] = useState(false);
   const [activeCompany, setActiveCompany] = useState<Company | null>(null);
   const openModal = (company?: Company) => {
@@ -33,6 +35,21 @@ export default function CompanyList({
     company ? setActiveCompany(company) : setActiveCompany(null);
   };
   const closeModal = () => setOpen(false);
+  const optimisticCompanyCustom = optimisticCompanies.map((item) => {
+    return {
+      id: item.id,
+
+      name: item?.name,
+
+      salesOwner: item?.salesOwner,
+
+      creator: item?.user?.name,
+
+      createdAt: moment(item.createdAt).format(formatDateSlash),
+
+      updatedAt: item.updatedAt,
+    };
+  });
   return (
     <div>
       <Modal
@@ -46,7 +63,6 @@ export default function CompanyList({
           openModal={openModal}
           closeModal={closeModal}
           users={users}
-
         />
       </Modal>
       <div className="absolute right-0 top-0 ">
@@ -57,15 +73,13 @@ export default function CompanyList({
       {optimisticCompanies.length === 0 ? (
         <EmptyState openModal={openModal} />
       ) : (
-        <ul>
-          {optimisticCompanies.map((company) => (
-            <Company
-              company={company}
-              key={company.id}
-              openModal={openModal}
-            />
-          ))}
-        </ul>
+        <div className="container mx-auto py-10">
+          <DataTable
+            columns={columns}
+            //@ts-ignore
+            data={optimisticCompanyCustom}
+          />
+        </div>
       )}
     </div>
   );
@@ -86,22 +100,19 @@ const Company = ({
     ? pathname
     : pathname + "/companies/";
 
-
   return (
     <li
       className={cn(
         "flex justify-between my-2",
         mutating ? "opacity-30 animate-pulse" : "",
-        deleting ? "text-destructive" : "",
+        deleting ? "text-destructive" : ""
       )}
     >
       <div className="w-full">
         <div>{company.name}</div>
       </div>
       <Button variant={"link"} asChild>
-        <Link href={basePath + "/" + company.id}>
-          Edit
-        </Link>
+        <Link href={basePath + "/" + company.id}>Edit</Link>
       </Button>
     </li>
   );
@@ -118,7 +129,8 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
       </p>
       <div className="mt-6">
         <Button onClick={() => openModal()}>
-          <PlusIcon className="h-4" /> New Companies </Button>
+          <PlusIcon className="h-4" /> New Companies{" "}
+        </Button>
       </div>
     </div>
   );
