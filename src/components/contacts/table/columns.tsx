@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CompleteCompany } from "@/lib/db/schema/companies";
 import { CompleteConsultant } from "@/lib/db/schema/consultants";
+import { CompleteContact } from "@/lib/db/schema/contacts";
 import { formatDateSlash } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { ExternalLink, Mail, Phone } from "lucide-react";
@@ -96,11 +97,11 @@ export const columnsContact: ColumnDef<ContactTypeColumns>[] = [
   {
     accessorKey: "Action",
     cell: ({ row }) => {
-      const company = row.original;
+      const contact = row.original;
       return (
         <Contact
           // @ts-ignore
-          company={company}
+          contact={contact}
         />
       );
     },
@@ -109,28 +110,32 @@ export const columnsContact: ColumnDef<ContactTypeColumns>[] = [
 
 const Contact = ({
   // @ts-ignore
-  company,
+  contact,
 }: // openModal,
   {
     consultant: CompleteCompany;
-    // openModal: TOpenModal;
+    contact: CompleteContact
   }) => {
   // const optimistic = consultant.id === "optimistic";
   // const deleting = consultant.id === "delete";
   // const mutating = optimistic || deleting;
   const pathname = usePathname();
-  const basePath = pathname.includes("companies")
+  const basePath = pathname.includes("contacts")
     ? pathname
-    : pathname + "/companies/";
+    : pathname.includes("companies") ? '/contacts'
+      : pathname + "/contacts/";
 
   return (
     // <Button variant={"link"} asChild>
     //   <Link href={basePath + "/" + company.id}>Details</Link>
     // </Button>
     <div className="flex space-x-2">
-      <Mail color="#808080" className="border p-1 rounded-md bg-slate-100 hover:border-blue-400" />
-      <Phone color="#808080" className="border p-1 rounded-md bg-slate-100 hover:border-blue-400" />
-      <ExternalLink color="#808080" className="border p-1 rounded-md bg-slate-100 hover:border-blue-400" />
+      <Mail color="#808080" className="border p-1 rounded-md bg-slate-100 hover:border-blue-400 cursor-pointer" />
+      <Phone color="#808080" className="border p-1 rounded-md bg-slate-100 hover:border-blue-400 cursor-pointer" />
+      <Link href={basePath + "/" + contact.id}>
+        <ExternalLink color="#808080" className="border p-1 rounded-md bg-slate-100 hover:border-blue-400 cursor-pointer" />
+      </Link>
+
 
     </div>
   );

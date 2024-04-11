@@ -22,7 +22,8 @@ export const getContactById = async (id: ContactId) => {
   const c = await db.contact.findFirst({
     where: { id: contactId },
     include: {
-      user: true
+      user: true,
+      company: true
     }
   });
   return { contact: c };

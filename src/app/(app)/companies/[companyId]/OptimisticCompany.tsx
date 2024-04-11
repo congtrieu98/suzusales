@@ -17,7 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Archive, BadgeDollarSign, BellRing, Check, Edit, NotebookText, Pencil, Quote, SwitchCamera, User, User2, Users } from "lucide-react";
+import { AlignLeft, Archive, BadgeDollarSign, BellRing, Check, Edit, NotebookText, Pencil, Quote, SwitchCamera, User, User2, Users } from "lucide-react";
 import { CompleteContact } from "@/lib/db/schema/contacts";
 import { DataTableContact } from "@/components/contacts/table/data-table";
 import { columnsContact } from "@/components/contacts/table/columns";
@@ -222,7 +222,7 @@ export default function OptimisticCompany({
 
             {/* Note */}
             <div className="flex py-4 px-6 space-x-2 bg-gray-50 rounded-t-xl border-b-2">
-              <NotebookText size={20} />
+              <AlignLeft size={20} />
               <div className="font-medium">Notes</div>
             </div>
 
