@@ -12,19 +12,21 @@ import { useOptimisticContacts } from "@/app/(app)/contacts/useOptimisticContact
 import { Button } from "@/components/ui/button";
 import ContactForm from "./ContactForm";
 import { PlusIcon } from "lucide-react";
+import { DataTableContact } from "./table/data-table";
+import { columnsContact } from "./table/columns";
 
 type TOpenModal = (contact?: Contact) => void;
 
 export default function ContactList({
   contacts,
-   
+
 }: {
   contacts: CompleteContact[];
-   
+
 }) {
   const { optimisticContacts, addOptimisticContact } = useOptimisticContacts(
     contacts,
-     
+
   );
   const [open, setOpen] = useState(false);
   const [activeContact, setActiveContact] = useState<Contact | null>(null);
@@ -33,6 +35,8 @@ export default function ContactList({
     contact ? setActiveContact(contact) : setActiveContact(null);
   };
   const closeModal = () => setOpen(false);
+
+  // console.log("contacsList:", contacts)
 
   return (
     <div>
@@ -46,7 +50,7 @@ export default function ContactList({
           addOptimistic={addOptimisticContact}
           openModal={openModal}
           closeModal={closeModal}
-          
+
         />
       </Modal>
       <div className="absolute right-0 top-0 ">
@@ -57,15 +61,13 @@ export default function ContactList({
       {optimisticContacts.length === 0 ? (
         <EmptyState openModal={openModal} />
       ) : (
-        <ul>
-          {optimisticContacts.map((contact) => (
-            <Contact
-              contact={contact}
-              key={contact.id}
-              openModal={openModal}
-            />
-          ))}
-        </ul>
+        <div className="container mx-auto py-10">
+          <DataTableContact
+            columns={columnsContact}
+            //@ts-ignore
+            data={optimisticContacts?.length > 0 ? optimisticContacts : []}
+          />
+        </div>
       )}
     </div>
   );
@@ -99,7 +101,7 @@ const Contact = ({
         <div>{contact.name}</div>
       </div>
       <Button variant={"link"} asChild>
-        <Link href={ basePath + "/" + contact.id }>
+        <Link href={basePath + "/" + contact.id}>
           Edit
         </Link>
       </Button>

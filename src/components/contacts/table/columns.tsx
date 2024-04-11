@@ -6,6 +6,7 @@ import { CompleteCompany } from "@/lib/db/schema/companies";
 import { CompleteConsultant } from "@/lib/db/schema/consultants";
 import { formatDateSlash } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
+import { ExternalLink, Mail, Phone } from "lucide-react";
 import moment from "moment";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -21,12 +22,14 @@ export type ContactTypeColumns = {
   userId: string;
   createdAt: Date;
   updatedAt: Date;
-  // ConsultantStaff: {
-  //   id: string;
-  //   consultantId: string;
-  //   staffId: string;
-  //   email: string;
-  // }[];
+  company: {
+    id: string;
+    name: string;
+    salesOwner: string;
+    userId: string;
+    createdAt: Date;
+    updatedAt: Date;
+  };
   user: {
     id: string;
     name: string | null;
@@ -35,6 +38,7 @@ export type ContactTypeColumns = {
     image: string | null;
   };
 };
+
 
 export const columnsContact: ColumnDef<ContactTypeColumns>[] = [
   {
@@ -61,7 +65,7 @@ export const columnsContact: ColumnDef<ContactTypeColumns>[] = [
   },
   {
     accessorKey: "name",
-    header: "Company name",
+    header: "Name",
   },
   {
     accessorKey: "email",
@@ -71,7 +75,15 @@ export const columnsContact: ColumnDef<ContactTypeColumns>[] = [
     accessorKey: "creator",
     header: "Creator",
     cell: ({ row }) => {
+      console.log("row:", row)
       return row.original.user.name;
+    },
+  },
+  {
+    accessorKey: "company",
+    header: "Company",
+    cell: ({ row }) => {
+      return row.original.company.name;
     },
   },
   {
@@ -86,7 +98,7 @@ export const columnsContact: ColumnDef<ContactTypeColumns>[] = [
     cell: ({ row }) => {
       const company = row.original;
       return (
-        <Company
+        <Contact
           // @ts-ignore
           company={company}
         />
@@ -95,14 +107,14 @@ export const columnsContact: ColumnDef<ContactTypeColumns>[] = [
   },
 ];
 
-const Company = ({
+const Contact = ({
   // @ts-ignore
   company,
 }: // openModal,
-{
-  consultant: CompleteCompany;
-  // openModal: TOpenModal;
-}) => {
+  {
+    consultant: CompleteCompany;
+    // openModal: TOpenModal;
+  }) => {
   // const optimistic = consultant.id === "optimistic";
   // const deleting = consultant.id === "delete";
   // const mutating = optimistic || deleting;
@@ -112,8 +124,14 @@ const Company = ({
     : pathname + "/companies/";
 
   return (
-    <Button variant={"link"} asChild>
-      <Link href={basePath + "/" + company.id}>Details</Link>
-    </Button>
+    // <Button variant={"link"} asChild>
+    //   <Link href={basePath + "/" + company.id}>Details</Link>
+    // </Button>
+    <div className="flex space-x-2">
+      <Mail color="#808080" className="border p-1 rounded-md bg-slate-100 hover:border-blue-400" />
+      <Phone color="#808080" className="border p-1 rounded-md bg-slate-100 hover:border-blue-400" />
+      <ExternalLink color="#808080" className="border p-1 rounded-md bg-slate-100 hover:border-blue-400" />
+
+    </div>
   );
 };

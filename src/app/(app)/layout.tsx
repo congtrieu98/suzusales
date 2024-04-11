@@ -46,7 +46,7 @@ export default async function AppLayout({
         </TrpcProvider>
       </NextAuthProvider>
 
-      <Toaster richColors />
+      <Toaster richColors position="top-right" />
     </main>
   );
 }

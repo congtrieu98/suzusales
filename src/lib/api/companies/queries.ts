@@ -11,6 +11,7 @@ export const getCompanies = async () => {
     },
     include: {
       user: true,
+      contacts: true
     },
   });
   return { companies: c };
@@ -21,6 +22,10 @@ export const getCompanyById = async (id: CompanyId) => {
   const { id: companyId } = companyIdSchema.parse({ id });
   const c = await db.company.findFirst({
     where: { id: companyId },
+    include: {
+      contacts: true,
+      user: true
+    }
   });
   return { company: c };
 };

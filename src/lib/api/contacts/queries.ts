@@ -10,6 +10,7 @@ export const getContacts = async () => {
     },
     include: {
       user: true,
+      company: true
     },
   });
   return { contacts: c };
@@ -19,7 +20,10 @@ export const getContactById = async (id: ContactId) => {
   const { session } = await getUserAuth();
   const { id: contactId } = contactIdSchema.parse({ id });
   const c = await db.contact.findFirst({
-    where: { id: contactId, userId: session?.user.id! },
+    where: { id: contactId },
+    include: {
+      user: true
+    }
   });
   return { contact: c };
 };

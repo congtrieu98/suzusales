@@ -35,6 +35,7 @@ import { TAddOptimistic } from "@/app/(app)/consultants/useOptimisticConsultants
 import { CompanyTypeColumns } from "./columns";
 import { deleteConsultantAction } from "@/lib/actions/consultants";
 import { Action } from "@/lib/utils";
+import { deleteCompanyAction } from "@/lib/actions/companies";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -125,7 +126,7 @@ export function DataTable<TData, TValue>({
                             //@ts-ignore
                             data: item.original,
                           });
-                        const error = await deleteConsultantAction(
+                        const error = await deleteCompanyAction(
                           //@ts-ignore
                           item.original.id
                         );
@@ -159,9 +160,9 @@ export function DataTable<TData, TValue>({
                           {header.isPlaceholder
                             ? null
                             : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                         </TableHead>
                       );
                     })}
@@ -231,9 +232,9 @@ export function DataTable<TData, TValue>({
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

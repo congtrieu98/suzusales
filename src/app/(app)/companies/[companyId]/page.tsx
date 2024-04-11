@@ -8,6 +8,7 @@ import { checkAuth } from "@/lib/auth/utils";
 import { BackButton } from "@/components/shared/BackButton";
 import Loading from "@/app/loading";
 import { getContacts } from "@/lib/api/contacts/queries";
+import { getUsers } from "@/lib/api/users/queries";
 
 export const revalidate = 0;
 
@@ -27,14 +28,14 @@ const Company = async ({ id }: { id: string }) => {
   await checkAuth();
 
   const { company } = await getCompanyById(id);
-  const { contacts } = await getContacts();
+  const { users } = await getUsers();
 
   if (!company) notFound();
   return (
     <Suspense fallback={<Loading />}>
       <div className="relative">
         <BackButton currentResource="companies" />
-        <OptimisticCompany company={company} contacts={contacts} />
+        <OptimisticCompany company={company} users={users} />
       </div>
     </Suspense>
   );

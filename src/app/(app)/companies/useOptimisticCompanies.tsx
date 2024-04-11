@@ -3,11 +3,11 @@ import { type Company, type CompleteCompany } from "@/lib/db/schema/companies";
 import { OptimisticAction } from "@/lib/utils";
 import { useOptimistic } from "react";
 
-export type TAddOptimistic = (action: OptimisticAction<Company>) => void;
+export type TAddOptimistic = (action: OptimisticAction<CompleteCompany>) => void;
 
 export const useOptimisticCompanies = (
   companies: CompleteCompany[],
-  
+
 ) => {
   const [optimisticCompanies, addOptimisticCompany] = useOptimistic(
     companies,
@@ -17,16 +17,17 @@ export const useOptimisticCompanies = (
     ): CompleteCompany[] => {
       const { data } = action;
 
-      
+
 
       const optimisticCompany = {
         ...data,
-        
+
         id: "optimistic",
       };
 
       switch (action.action) {
         case "create":
+          //@ts-ignore
           return currentState.length === 0
             ? [optimisticCompany]
             : [...currentState, optimisticCompany];

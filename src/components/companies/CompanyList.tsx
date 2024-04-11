@@ -17,7 +17,7 @@ import moment from "moment";
 import { DataTable } from "./table/data-table";
 import { columns } from "./table/columns";
 
-type TOpenModal = (company?: Company) => void;
+type TOpenModal = (company?: CompleteCompany) => void;
 
 export default function CompanyList({
   companies,
@@ -29,12 +29,13 @@ export default function CompanyList({
   const { optimisticCompanies, addOptimisticCompany } =
     useOptimisticCompanies(companies);
   const [open, setOpen] = useState(false);
-  const [activeCompany, setActiveCompany] = useState<Company | null>(null);
-  const openModal = (company?: Company) => {
+  const [activeCompany, setActiveCompany] = useState<CompleteCompany | null>(null);
+  const openModal = (company?: CompleteCompany) => {
     setOpen(true);
     company ? setActiveCompany(company) : setActiveCompany(null);
   };
   const closeModal = () => setOpen(false);
+
   const optimisticCompanyCustom = optimisticCompanies.map((item) => {
     return {
       id: item.id,

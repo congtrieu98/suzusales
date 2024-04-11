@@ -35,6 +35,7 @@ import { TAddOptimistic } from "@/app/(app)/consultants/useOptimisticConsultants
 import { ContactTypeColumns } from "./columns";
 import { deleteConsultantAction } from "@/lib/actions/consultants";
 import { Action } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -52,7 +53,7 @@ export function DataTableContact<TData, TValue>({
     //@ts-ignore
     data
   );
-
+  const pathName = usePathname()
   const updatePage: TAddOptimistic = (input) =>
     setOptimisticPage(
       //@ts-ignore
@@ -87,14 +88,20 @@ export function DataTableContact<TData, TValue>({
     state: {
       globalFilter: filtering,
       rowSelection,
+      columnVisibility: {
+        //@ts-ignore
+        creator: pathName.includes('companies') ? false : true, // có data ẩn là false
+        company: pathName.includes('companies') ? false : true, // có data ẩn là false
+        select: pathName.includes('companies') ? false : true // có data ẩn là false
+      }
     },
   });
 
   return (
     <>
-      {/* <div className="flex items-center py-4">
+      {pathName.includes('contacts') && <div className="flex items-center py-4">
         <Input
-          placeholder="Search everything"
+          placeholder="Search by name or email"
           type="text"
           value={filtering}
           onChange={(e) => setFiltering(e.target.value)}
@@ -145,7 +152,63 @@ export function DataTableContact<TData, TValue>({
             </AlertDialogContent>
           </AlertDialog>
         )}
-      </div> */}
+      </div>}
+      {
+        // @ts-ignore
+        data?.user && <div className="flex items-center py-4">
+          <Input
+            placeholder="Search everything"
+            type="text"
+            value={filtering}
+            onChange={(e) => setFiltering(e.target.value)}
+            className="max-w-sm"
+          />
+          {table.getFilteredSelectedRowModel().rows.length > 0 && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="ml-2">
+                  Xóa
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Are you sure you want delete this item?
+                  </AlertDialogTitle>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={async () => {
+                      table.getFilteredSelectedRowModel().rows.map((item) => {
+                        startMutation(async () => {
+                          updatePage &&
+                            updatePage({
+                              action: "delete",
+                              //@ts-ignore
+                              data: item.original,
+                            });
+                          const error = await deleteConsultantAction(
+                            //@ts-ignore
+                            item.original.id
+                          );
+                          const errorFormatted = {
+                            error: error ?? "Error",
+                            values: item.original,
+                          };
+
+                          onSuccess("delete", error ? errorFormatted : undefined);
+                        });
+                      });
+                    }}
+                  >
+                    Ok
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+        </div>}
       <div className="rounded-md border">
         {pending ? (
           <div className="relative pointer-events-none opacity-40 items-center block w-full p-6 bg-white rounded-lg dark:bg-gray-800  dark:hover:bg-gray-700">
@@ -159,9 +222,9 @@ export function DataTableContact<TData, TValue>({
                           {header.isPlaceholder
                             ? null
                             : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                         </TableHead>
                       );
                     })}
@@ -231,9 +294,9 @@ export function DataTableContact<TData, TValue>({
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

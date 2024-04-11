@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useBackPath } from "@/components/shared/BackButton";
 
-import { type Company, insertCompanyParams } from "@/lib/db/schema/companies";
+import { type Company, insertCompanyParams, CompleteCompany } from "@/lib/db/schema/companies";
 import {
   createCompanyAction,
   deleteCompanyAction,
@@ -45,9 +45,9 @@ const CompanyForm = ({
   postSuccess,
   users,
 }: {
-  company?: Company | null;
+  company?: CompleteCompany | null;
 
-  openModal?: (company?: Company) => void;
+  openModal?: (company?: CompleteCompany) => void;
   closeModal?: () => void;
   addOptimistic?: TAddOptimistic;
   postSuccess?: () => void;
@@ -67,7 +67,7 @@ const CompanyForm = ({
 
   const onSuccess = (
     action: Action,
-    data?: { error: string; values: Company }
+    data?: { error: string; values: CompleteCompany }
   ) => {
     const failed = Boolean(data?.error);
     if (failed) {
@@ -97,12 +97,13 @@ const CompanyForm = ({
 
     closeModal && closeModal();
     const values = companyParsed.data;
-    const pendingCompany: Company = {
+    const pendingCompany: CompleteCompany = {
       updatedAt: company?.updatedAt ?? new Date(),
       createdAt: company?.createdAt ?? new Date(),
       id: company?.id ?? "",
       userId: company?.userId ?? "",
-      // dataContact: dataContact,
+      contacts: company?.contacts!,
+      user: company?.user!,
       ...values,
     };
     try {
@@ -116,10 +117,10 @@ const CompanyForm = ({
         const error = editing
           ? await updateCompanyAction({ ...values, id: company.id })
           : await createCompanyAction({
-              ...values,
-              //@ts-ignore
-              dataContact: dataContact,
-            });
+            ...values,
+            //@ts-ignore
+            dataContact: dataContact,
+          });
 
         const errorFormatted = {
           error: error ?? "Error",
