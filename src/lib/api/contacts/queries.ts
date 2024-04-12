@@ -10,7 +10,8 @@ export const getContacts = async () => {
     },
     include: {
       user: true,
-      company: true
+      company: true,
+      noteContact: true,
     },
   });
   return { contacts: c };
@@ -23,8 +24,16 @@ export const getContactById = async (id: ContactId) => {
     where: { id: contactId },
     include: {
       user: true,
-      company: true
-    }
+      company: true,
+      noteContact: {
+        include: {
+          user: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
   return { contact: c };
 };

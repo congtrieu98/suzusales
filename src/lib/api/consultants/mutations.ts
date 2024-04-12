@@ -86,7 +86,7 @@ export const updateConsultant = async (
   };
   try {
     const c = await db.consultant.update({
-      where: { id: consultantId, userId: session?.user.id! },
+      where: { id: consultantId },
       //@ts-ignore
       data: newConsultant,
     });

@@ -1,7 +1,6 @@
 "use client";
 
-import { useOptimistic, useRef, useState } from "react";
-import { TAddOptimistic } from "@/app/(app)/companies/useOptimisticCompanies";
+import { useRef, useState } from "react";
 import { CompleteCompany, type Company } from "@/lib/db/schema/companies";
 import { Action, cn, formatDateSlash } from "@/lib/utils";
 
@@ -36,9 +35,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createNoteAction } from "@/lib/actions/notes";
-import { useValidatedForm } from "@/lib/hooks/useValidatedForm";
-import { CompleteNote, Note, insertNoteParams } from "@/lib/db/schema/notes";
+import {
+  createNoteAction,
+  deleteNoteAction,
+  updateNoteAction,
+} from "@/lib/actions/notes";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function OptimisticCompany({
   company,
@@ -48,16 +59,12 @@ export default function OptimisticCompany({
   users: CompleteUser[];
 }) {
   const { data: session } = useSession();
-  const { errors, hasErrors, setErrors, handleChange } =
-    useValidatedForm<Note>(insertNoteParams);
-  const [optimisticCompany, setOptimisticCompany] = useOptimistic(company);
-  const updateCompany: TAddOptimistic = (input) =>
-    setOptimisticCompany({ ...input.data });
   const [clickTitleCompany, setClickTitleCompany] = useState(false);
   const [clickSalesOwner, setClickSalesOwner] = useState(false);
   const [changeTitle, setChangeTitle] = useState("");
   const [changeInputNote, setChangeInputNote] = useState("");
   const [openTextArea, setOpenTextArea] = useState(false);
+  const [noteId, setNoteId] = useState("");
 
   const focusInput = useRef(null);
   const router = useRouter();
@@ -90,13 +97,35 @@ export default function OptimisticCompany({
           content: changeInputNote,
           companyId: company.id,
         });
-        setChangeInputNote("");
-        onSuccess("create");
       }
+      onSuccess("create");
+      setChangeInputNote("");
     } catch (error) {
       toast.error("Create faild");
     }
   };
+
+  const handleEnterKeyPress = async (event: {
+    key: string;
+    preventDefault: () => void;
+  }) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      try {
+        if (changeInputNote !== "") {
+          await createNoteAction({
+            content: changeInputNote,
+            companyId: company.id,
+          });
+        }
+        setChangeInputNote("");
+        onSuccess("create");
+      } catch (error) {
+        toast.error("Create faild");
+      }
+    }
+  };
+
   const handleSave = async () => {
     try {
       if (changeTitle !== "") {
@@ -113,31 +142,27 @@ export default function OptimisticCompany({
     }
   };
 
-  const handleSubmitTextArea = async (data: FormData) => {
-    setErrors(null);
+  const handleClickEditTextArea = (val: string) => {
+    setOpenTextArea(!openTextArea);
+    setNoteId(val);
+  };
 
+  const handleSubmitTextArea = async (data: FormData) => {
     const payload = Object.fromEntries(data.entries());
-    const noteParsed = await insertNoteParams.safeParseAsync({
-      ...payload,
-    });
-    if (!noteParsed.success) {
-      setErrors(noteParsed?.error.flatten().fieldErrors);
-      return;
+
+    try {
+      if (payload?.content) {
+        await updateNoteAction({
+          content: payload?.content as string,
+          companyId: company.id,
+          id: noteId,
+        });
+        onSuccess("update");
+        setOpenTextArea(false);
+      }
+    } catch (error) {
+      toast.error("Update faild");
     }
-    const values = noteParsed.data;
-    const pendingNote: CompleteNote = {
-      updatedAt: company?.updatedAt ?? new Date(),
-      createdAt: company?.createdAt ?? new Date(),
-      id:
-        company?.notes?.find((item) => item?.companyId === company?.id)?.id ??
-        "",
-      userId: company?.userId,
-      company: company,
-      user: company?.user!,
-      ...values,
-    };
-    console.log("dataArea:", values);
-    console.log("error:", errors);
   };
 
   const handlerChangeSalesOwner = async (val: string) => {
@@ -241,8 +266,8 @@ export default function OptimisticCompany({
 
       {/* content */}
       <div className="mt-10">
-        <div className="grid md:grid-cols-4 grid-cols-1 gap-4">
-          <div className="md:col-span-3">
+        <div className="grid lg:grid-cols-4 grid-cols-1 gap-4">
+          <div className="lg:col-span-3">
             <div className="bg-white py-4 px-6 rounded-xl shadow-lg mb-10">
               <div className="flex justify-between mb-4">
                 <div className="flex space-x-3">
@@ -315,6 +340,7 @@ export default function OptimisticCompany({
                 <Input
                   type="text"
                   onChange={(e) => setChangeInputNote(e.target.value)}
+                  onKeyDown={handleEnterKeyPress}
                 />
                 <button
                   type="submit"
@@ -347,7 +373,7 @@ export default function OptimisticCompany({
                       </div>
 
                       <div className="flex justify-between w-full">
-                        <div className="font-normal">
+                        <div className="font-normal text-sm">
                           {/* @ts-ignore */}
                           {n?.user?.name!}
                         </div>
@@ -360,11 +386,9 @@ export default function OptimisticCompany({
                     {/* content */}
                     {openTextArea &&
                     // @ts-ignore
-                    session?.user?.id === n?.user?.id ? (
-                      <form
-                        action={handleSubmitTextArea}
-                        onChange={handleChange}
-                      >
+                    session?.user?.id === n?.user?.id &&
+                    n?.id === noteId ? (
+                      <form action={handleSubmitTextArea}>
                         <Textarea
                           name="content"
                           placeholder="Type your message here."
@@ -396,16 +420,49 @@ export default function OptimisticCompany({
                     {
                       // @ts-ignore
                       session?.user?.id === n.user.id && (
-                        <div className="flex space-x-5 text-[#808080] text-sm ml-9">
+                        <div
+                          className={`${
+                            openTextArea && n.id === noteId ? "hidden" : ""
+                          } flex space-x-5 text-[#808080] text-sm ml-[38px] mb-3`}
+                        >
                           <div
-                            className="hover:text-blue-400 cursor-pointer"
-                            onClick={() => setOpenTextArea(!openTextArea)}
+                            className="hover:text-blue-400 cursor-pointer text-sm"
+                            onClick={() => handleClickEditTextArea(n?.id)}
                           >
                             Edit
                           </div>
-                          <div className="hover:text-red-500 cursor-pointer">
-                            Delete
-                          </div>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <div className="hover:text-red-500 cursor-pointer text-sm">
+                                Delete
+                              </div>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle className="text-sm font-medium text-slate-600">
+                                  Are you sure?
+                                </AlertDialogTitle>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel className="text-sm py-1 px-1.5 bg-red-500 hover:bg-red-500 text-white hover:text-white">
+                                  Cancel
+                                </AlertDialogCancel>
+                                <AlertDialogAction
+                                  className="text-sm py-1 px-1.5 hover:bg-blue-600 bg-blue-600 hover:text-white"
+                                  onClick={async () => {
+                                    try {
+                                      await deleteNoteAction(n?.id);
+                                      onSuccess("delete");
+                                    } catch (error) {
+                                      toast.error(`Delete faild ${error}`);
+                                    }
+                                  }}
+                                >
+                                  Ok
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       )
                     }

@@ -1,30 +1,59 @@
 "use client";
 
-import { useOptimistic, useState } from "react";
+import { useOptimistic, useRef, useState } from "react";
 import { TAddOptimistic } from "@/app/(app)/contacts/useOptimisticContacts";
 import { CompleteContact, type Contact } from "@/lib/db/schema/contacts";
-import { cn, formatDateSlash } from "@/lib/utils";
+import { Action, cn, formatDateSlash } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/shared/Modal";
 import ContactForm from "@/components/contacts/ContactForm";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { AlignLeft, Building, Edit, Mail, NotebookText, Phone, User } from "lucide-react";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  AlignLeft,
+  Building,
+  Edit,
+  Mail,
+  NotebookText,
+  Phone,
+  User,
+} from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import moment from "moment";
 import { useSession } from "next-auth/react";
 import { Input } from "@/components/ui/input";
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import {
+  createNoteContactAction,
+  deleteNoteContactAction,
+  updateNoteContactAction,
+} from "@/lib/actions/noteContacts";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function OptimisticContact({
   contact,
-
 }: {
   contact: CompleteContact;
-
-
 }) {
-  const { data: session } = useSession()
+  const { data: session } = useSession();
   const [open, setOpen] = useState(false);
   const openModal = (_?: Contact) => {
     setOpen(true);
@@ -33,13 +62,81 @@ export default function OptimisticContact({
   const [optimisticContact, setOptimisticContact] = useOptimistic(contact);
   const updateContact: TAddOptimistic = (input) =>
     setOptimisticContact({ ...input.data });
+  const [changeInputNote, setChangeInputNote] = useState("");
+  const [openTextArea, setOpenTextArea] = useState(false);
+  const [noteId, setNoteId] = useState("");
 
+  const focusInput = useRef(null);
+  const router = useRouter();
+
+  const onSuccess = (action: Action) => {
+    router.refresh();
+    toast.success(`Note ${action}d!`);
+  };
+
+  const handleClickInputNote = async () => {
+    try {
+      if (changeInputNote !== "") {
+        await createNoteContactAction({
+          content: changeInputNote,
+          contactId: contact.id,
+        });
+      }
+      onSuccess("create");
+      setChangeInputNote("");
+    } catch (error) {
+      toast.error("Create faild");
+    }
+  };
+
+  const handleEnterKeyPress = async (event: {
+    key: string;
+    preventDefault: () => void;
+  }) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      try {
+        if (changeInputNote !== "") {
+          await createNoteContactAction({
+            content: changeInputNote,
+            contactId: contact.id,
+          });
+        }
+        setChangeInputNote("");
+        onSuccess("create");
+      } catch (error) {
+        toast.error("Create faild");
+      }
+    }
+  };
+
+  const handleClickEditTextArea = (val: string) => {
+    setOpenTextArea(!openTextArea);
+    setNoteId(val);
+  };
+
+  const handleSubmitTextArea = async (data: FormData) => {
+    const payload = Object.fromEntries(data.entries());
+
+    try {
+      if (payload?.content) {
+        await updateNoteContactAction({
+          content: payload?.content as string,
+          contactId: contact.id,
+          id: noteId,
+        });
+        onSuccess("update");
+        setOpenTextArea(false);
+      }
+    } catch (error) {
+      toast.error("Update faild");
+    }
+  };
   return (
     <div className="">
       <Modal open={open} setOpen={setOpen}>
         <ContactForm
           contact={optimisticContact}
-
           closeModal={closeModal}
           openModal={openModal}
           addOptimistic={updateContact}
@@ -52,7 +149,6 @@ export default function OptimisticContact({
         </Button>
       </div>
 
-
       <div className="p-5 bg-gray-100">
         <div className="flex space-x-3">
           <div className="avatar">
@@ -61,14 +157,15 @@ export default function OptimisticContact({
               // src={infoSalesOwner?.image!}
               // alt={infoSalesOwner?.name!}
               />
-              <AvatarFallback className="bg-orange-400 text-white text-2xl">KT</AvatarFallback>
+              <AvatarFallback className="bg-orange-400 text-white text-2xl">
+                KT
+              </AvatarFallback>
             </Avatar>
           </div>
           <div className="text-xl text-center items-center mt-5 font-medium">
             {contact.name}
           </div>
         </div>
-
 
         {/* content */}
         <div className="space-y-4 bg-white rounded-b-md px-2 pt-2 rounded-lg mt-10">
@@ -81,7 +178,6 @@ export default function OptimisticContact({
                 <div className="text-sm font-light ">{contact.email}</div>
               </div>
             </div>
-
           </div>
 
           <div className="border-b-2 p-2">
@@ -90,11 +186,11 @@ export default function OptimisticContact({
                 <Building size={20} className="" />
               </div>
               <div className="ml-8">
-                <div className="text-sm font-light ">{contact.company.name}</div>
+                <div className="text-sm font-light ">
+                  {contact.company.name}
+                </div>
               </div>
-
             </div>
-
           </div>
 
           <div className="p-2">
@@ -106,15 +202,12 @@ export default function OptimisticContact({
                 <div className="text-sm font-light ">0123456789</div>
               </div>
             </div>
-
           </div>
         </div>
 
         {/* Lifcircle status */}
         <div className="mb-10">
-          <div className="font-medium mt-10">
-            Lifecycle stage
-          </div>
+          <div className="font-medium mt-10">Lifecycle stage</div>
 
           <div className="mt-4">
             <div className="md:flex grid grid-colds-1 text-center items-center">
@@ -131,7 +224,9 @@ export default function OptimisticContact({
                 <SelectContent>
                   <SelectGroup>
                     <SelectItem value="interested">Interested</SelectItem>
-                    <SelectItem value="unqualified" className="text-red-500">Unqualified</SelectItem>
+                    <SelectItem value="unqualified" className="text-red-500">
+                      Unqualified
+                    </SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -145,7 +240,9 @@ export default function OptimisticContact({
                 <SelectContent>
                   <SelectGroup>
                     <SelectItem value="negotiation">Negotiation</SelectItem>
-                    <SelectItem value="lost" className="text-red-500">Lost</SelectItem>
+                    <SelectItem value="lost" className="text-red-500">
+                      Lost
+                    </SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -156,7 +253,12 @@ export default function OptimisticContact({
                 <SelectContent>
                   <SelectGroup>
                     <SelectItem value="won">Won</SelectItem>
-                    <SelectItem value="churned" className="text-red-500 hover:bg-red-500 hover:text-white">Churned</SelectItem>
+                    <SelectItem
+                      value="churned"
+                      className="text-red-500 hover:bg-red-500 hover:text-white"
+                    >
+                      Churned
+                    </SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -164,15 +266,12 @@ export default function OptimisticContact({
           </div>
         </div>
 
-
-
         {/* Note */}
         <div className="">
           <div className="flex py-4 px-6 space-x-2 bg-gray-50 rounded-t-xl border-b-2">
             <AlignLeft size={20} />
             <div className="font-medium">Notes</div>
           </div>
-
           <div className="flex space-x-2 w-full bg-white p-6">
             <div className="avatar">
               <Avatar className="w-8 h-8">
@@ -184,62 +283,140 @@ export default function OptimisticContact({
               </Avatar>
             </div>
             <div className="flex w-full space-x-2">
-              <Input type="text" />
-              <button type="submit" className="bg-gray-100 p-2 rounded-md">Add</button>
+              <Input
+                type="text"
+                onChange={(e) => setChangeInputNote(e.target.value)}
+                onKeyDown={handleEnterKeyPress}
+              />
+              <button
+                type="submit"
+                className="bg-gray-100 p-2 rounded-md"
+                onClick={handleClickInputNote}
+                disabled={changeInputNote === ""}
+              >
+                Add
+              </button>
             </div>
           </div>
 
           <div className="bg-gray-50 py-4 px-6 rounded-b-xl shadow-lg">
-            {/* info user note */}
-            <div className="flex space-y-2">
-              <div className="avatar mr-2">
-                <Avatar className="w-8 h-8">
-                  <AvatarImage
-                    src={session?.user?.image!}
-                    alt={session?.user?.name!}
-                  />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-              </div>
+            {contact.noteContact.map((n) => {
+              return (
+                <div className="" key={n?.id}>
+                  {/* info user note */}
 
-              <div className="flex justify-between w-full">
-                <div className="font-normal">username</div>
-                <div className="text-gray-300 text-xs">{moment(Date()).format(formatDateSlash)}</div>
-              </div>
-            </div>
+                  <div className="flex space-y-2">
+                    <div className="avatar mr-2">
+                      <Avatar className="w-8 h-8">
+                        <AvatarImage
+                          //@ts-ignore
+                          src={n?.user?.image!}
+                          //@ts-ignore
+                          alt={n?.user?.name!}
+                        />
+                        <AvatarFallback>CN</AvatarFallback>
+                      </Avatar>
+                    </div>
 
-            {/* content */}
-            <div className="text-sm ml-9 p-4 bg-white mt-2 rounded-lg shadow-lg  mb-3">
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-              Qui voluptatum ratione deleniti error dolorem nesciunt recusandae sunt consectetur quam eligendi.
-            </div>
+                    <div className="flex justify-between w-full">
+                      <div className="font-normal text-sm">
+                        {/* @ts-ignore */}
+                        {n?.user?.name!}
+                      </div>
+                      <div className="text-gray-400 text-xs">
+                        {moment(n?.createdAt).format(formatDateSlash)}
+                      </div>
+                    </div>
+                  </div>
 
+                  {/* content */}
+                  {openTextArea &&
+                  // @ts-ignore
+                  session?.user?.id === n?.user?.id &&
+                  n?.id === noteId ? (
+                    <form action={handleSubmitTextArea}>
+                      <Textarea
+                        name="content"
+                        placeholder="Type your message here."
+                        className=" mr-2 my-2"
+                        defaultValue={n?.content ?? ""}
+                      />
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          className="text-sm p-1.5 border rounded-md hover:border-blue-400"
+                          onClick={() => setOpenTextArea(false)}
+                        >
+                          <div className="hover:text-blue-400">Cancel</div>
+                        </button>
+                        <button
+                          type="submit"
+                          className="text-sm p-1.5 border rounded-md bg-blue-600 hover:border-blue-600 text-white hover:opacity-80"
+                        >
+                          Save
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="text-sm ml-9 p-4 bg-white mt-2 rounded-lg shadow-lg  mb-3">
+                      {n?.content}
+                    </div>
+                  )}
 
-            <div className="flex space-y-2">
-              <div className="avatar mr-2">
-                <Avatar className="w-8 h-8">
-                  <AvatarImage
-                    src={session?.user?.image!}
-                    alt={session?.user?.name!}
-                  />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-              </div>
-
-              <div className="flex justify-between w-full">
-                <div className="font-normal">username</div>
-                <div className="text-gray-300 text-xs">{moment(Date()).format(formatDateSlash)}</div>
-              </div>
-            </div>
-
-            {/* content */}
-            <div className="text-sm ml-9 p-4 bg-white mt-2 rounded-lg shadow-lg  mb-3">
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-              Qui voluptatum ratione deleniti error dolorem nesciunt recusandae sunt consectetur quam eligendi.
-            </div>
+                  {/* Action edit and delete notes */}
+                  {
+                    // @ts-ignore
+                    session?.user?.id === n.user.id && (
+                      <div
+                        className={`${
+                          openTextArea && n.id === noteId ? "hidden" : ""
+                        } flex space-x-5 text-[#808080] text-sm ml-[38px] mb-3`}
+                      >
+                        <div
+                          className="hover:text-blue-400 cursor-pointer text-sm"
+                          onClick={() => handleClickEditTextArea(n?.id)}
+                        >
+                          Edit
+                        </div>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <div className="hover:text-red-500 cursor-pointer text-sm">
+                              Delete
+                            </div>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle className="text-sm font-medium text-slate-600">
+                                Are you sure?
+                              </AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel className="text-sm py-1 px-1.5 bg-red-500 hover:bg-red-500 text-white hover:text-white">
+                                Cancel
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                className="text-sm py-1 px-1.5 hover:bg-blue-600 bg-blue-600 hover:text-white"
+                                onClick={async () => {
+                                  try {
+                                    await deleteNoteContactAction(n?.id);
+                                    onSuccess("delete");
+                                  } catch (error) {
+                                    toast.error(`Delete faild ${error}`);
+                                  }
+                                }}
+                              >
+                                Ok
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    )
+                  }
+                </div>
+              );
+            })}
           </div>
         </div>
-
       </div>
     </div>
   );
