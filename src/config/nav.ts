@@ -1,5 +1,5 @@
 import { SidebarLink } from "@/components/SidebarItems";
-import { Globe, HomeIcon, Settings, UserPlus, UserRound } from "lucide-react";
+import { Building2, Globe, HomeIcon, Settings, UserPlus, UserRound, Users } from "lucide-react";
 
 type AdditionalLinks = {
   title: string;
@@ -26,6 +26,16 @@ export const additionalLinks: AdditionalLinks[] = [
         href: "/consultants",
         title: "Consultants",
         icon: Globe,
+      },
+      {
+        href: "/companies",
+        title: "Companies",
+        icon: Building2,
+      },
+      {
+        href: "/contacts",
+        title: "Contacts",
+        icon: Users,
       },
     ],
   },

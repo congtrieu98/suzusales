@@ -49,9 +49,9 @@ model Session {
 }
 
 model User {
-  id            String       @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String?
-  email         String?      @unique
+  email         String?       @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
@@ -60,6 +60,10 @@ model User {
   pageLinks     PageLink[]
   consultants   Consultant[]
   contracts     Contract[]
+  companies     Company[]
+  contacts      Contact[]
+  notes         Note[]
+  noteContacts  NoteContact[]
 }
 
 model VerificationToken {
@@ -149,7 +153,54 @@ model ConsultantStaff {
   id           String     @id @default(cuid())
   consultantId String
   staffId      String
-  email       String
+  email        String
   consultant   Consultant @relation(fields: [consultantId], references: [id], onDelete: Cascade)
   staff        Staff      @relation(fields: [staffId], references: [id], onDelete: Cascade)
+}
+
+model Company {
+  id         String    @id @default(cuid())
+  name       String
+  salesOwner String
+  userId     String
+  contacts   Contact[]
+  notes      Note[]
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  userId    String
+  companyId String
+  noteContact     NoteContact[]
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  content   String
+  userId    String
+  companyId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model NoteContact {
+  id        String   @id @default(cuid())
+  content   String
+  userId    String
+  contactId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
