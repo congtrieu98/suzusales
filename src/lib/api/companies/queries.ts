@@ -11,7 +11,8 @@ export const getCompanies = async () => {
     },
     include: {
       user: true,
-      contacts: true
+      contacts: true,
+      notes: true,
     },
   });
   return { companies: c };
@@ -24,8 +25,16 @@ export const getCompanyById = async (id: CompanyId) => {
     where: { id: companyId },
     include: {
       contacts: true,
-      user: true
-    }
+      user: true,
+      notes: {
+        include: {
+          user: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
   return { company: c };
 };

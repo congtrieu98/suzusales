@@ -14,18 +14,18 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useBackPath } from "@/components/shared/BackButton";
 
-
-
-import { type Contact, insertContactParams } from "@/lib/db/schema/contacts";
+import {
+  type Contact,
+  insertContactParams,
+  CompleteContact,
+} from "@/lib/db/schema/contacts";
 import {
   createContactAction,
   deleteContactAction,
   updateContactAction,
 } from "@/lib/actions/contacts";
 
-
 const ContactForm = ({
-  
   contact,
   openModal,
   closeModal,
@@ -33,7 +33,7 @@ const ContactForm = ({
   postSuccess,
 }: {
   contact?: Contact | null;
-  
+
   openModal?: (contact?: Contact) => void;
   closeModal?: () => void;
   addOptimistic?: TAddOptimistic;
@@ -42,17 +42,16 @@ const ContactForm = ({
   const { errors, hasErrors, setErrors, handleChange } =
     useValidatedForm<Contact>(insertContactParams);
   const editing = !!contact?.id;
-  
+
   const [isDeleting, setIsDeleting] = useState(false);
   const [pending, startMutation] = useTransition();
 
   const router = useRouter();
   const backpath = useBackPath("contacts");
 
-
   const onSuccess = (
     action: Action,
-    data?: { error: string; values: Contact },
+    data?: { error: string; values: Contact }
   ) => {
     const failed = Boolean(data?.error);
     if (failed) {
@@ -72,7 +71,9 @@ const ContactForm = ({
     setErrors(null);
 
     const payload = Object.fromEntries(data.entries());
-    const contactParsed = await insertContactParams.safeParseAsync({  ...payload });
+    const contactParsed = await insertContactParams.safeParseAsync({
+      ...payload,
+    });
     if (!contactParsed.success) {
       setErrors(contactParsed?.error.flatten().fieldErrors);
       return;
@@ -89,10 +90,12 @@ const ContactForm = ({
     };
     try {
       startMutation(async () => {
-        addOptimistic && addOptimistic({
-          data: pendingContact,
-          action: editing ? "update" : "create",
-        });
+        addOptimistic &&
+          addOptimistic({
+            // @ts-ignore
+            data: pendingContact,
+            action: editing ? "update" : "create",
+          });
 
         const error = editing
           ? await updateContactAction({ ...values, id: contact.id })
@@ -100,11 +103,11 @@ const ContactForm = ({
 
         const errorFormatted = {
           error: error ?? "Error",
-          values: pendingContact 
+          values: pendingContact,
         };
         onSuccess(
           editing ? "update" : "create",
-          error ? errorFormatted : undefined,
+          error ? errorFormatted : undefined
         );
       });
     } catch (e) {
@@ -117,11 +120,11 @@ const ContactForm = ({
   return (
     <form action={handleSubmit} onChange={handleChange} className={"space-y-8"}>
       {/* Schema fields start */}
-              <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.name ? "text-destructive" : "",
+            errors?.name ? "text-destructive" : ""
           )}
         >
           Name
@@ -138,11 +141,11 @@ const ContactForm = ({
           <div className="h-6" />
         )}
       </div>
-        <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.email ? "text-destructive" : "",
+            errors?.email ? "text-destructive" : ""
           )}
         >
           Email
@@ -174,7 +177,12 @@ const ContactForm = ({
             setIsDeleting(true);
             closeModal && closeModal();
             startMutation(async () => {
-              addOptimistic && addOptimistic({ action: "delete", data: contact });
+              addOptimistic &&
+                addOptimistic({
+                  action: "delete",
+                  // @ts-ignore
+                  data: contact,
+                });
               const error = await deleteContactAction(contact.id);
               setIsDeleting(false);
               const errorFormatted = {

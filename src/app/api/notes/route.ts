@@ -3,25 +3,24 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import {
-  createCompany,
-  deleteCompany,
-  updateCompany,
-} from "@/lib/api/companies/mutations";
-import {
-  companyIdSchema,
-  insertCompanyParams,
-  updateCompanyParams,
-} from "@/lib/db/schema/companies";
+  createNote,
+  deleteNote,
+  updateNote,
+} from "@/lib/api/notes/mutations";
+import { 
+  noteIdSchema,
+  insertNoteParams,
+  updateNoteParams 
+} from "@/lib/db/schema/notes";
 
 export async function POST(req: Request) {
   try {
-    const validatedData = insertCompanyParams.parse(await req.json());
-    // @ts-ignore
-    const { company } = await createCompany(validatedData);
+    const validatedData = insertNoteParams.parse(await req.json());
+    const { note } = await createNote(validatedData);
 
-    revalidatePath("/companies"); // optional - assumes you will have named route same as entity
+    revalidatePath("/notes"); // optional - assumes you will have named route same as entity
 
-    return NextResponse.json(company, { status: 201 });
+    return NextResponse.json(note, { status: 201 });
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json({ error: err.issues }, { status: 400 });
@@ -31,17 +30,18 @@ export async function POST(req: Request) {
   }
 }
 
+
 export async function PUT(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 
-    const validatedData = updateCompanyParams.parse(await req.json());
-    const validatedParams = companyIdSchema.parse({ id });
+    const validatedData = updateNoteParams.parse(await req.json());
+    const validatedParams = noteIdSchema.parse({ id });
 
-    const { company } = await updateCompany(validatedParams.id, validatedData);
+    const { note } = await updateNote(validatedParams.id, validatedData);
 
-    return NextResponse.json(company, { status: 200 });
+    return NextResponse.json(note, { status: 200 });
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json({ error: err.issues }, { status: 400 });
@@ -56,10 +56,10 @@ export async function DELETE(req: Request) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 
-    const validatedParams = companyIdSchema.parse({ id });
-    const { company } = await deleteCompany(validatedParams.id);
+    const validatedParams = noteIdSchema.parse({ id });
+    const { note } = await deleteNote(validatedParams.id);
 
-    return NextResponse.json(company, { status: 200 });
+    return NextResponse.json(note, { status: 200 });
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json({ error: err.issues }, { status: 400 });

@@ -14,7 +14,11 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useBackPath } from "@/components/shared/BackButton";
 
-import { type Company, insertCompanyParams, CompleteCompany } from "@/lib/db/schema/companies";
+import {
+  type Company,
+  insertCompanyParams,
+  CompleteCompany,
+} from "@/lib/db/schema/companies";
 import {
   createCompanyAction,
   deleteCompanyAction,
@@ -104,6 +108,7 @@ const CompanyForm = ({
       userId: company?.userId ?? "",
       contacts: company?.contacts!,
       user: company?.user!,
+      notes: company?.notes!,
       ...values,
     };
     try {
@@ -117,10 +122,10 @@ const CompanyForm = ({
         const error = editing
           ? await updateCompanyAction({ ...values, id: company.id })
           : await createCompanyAction({
-            ...values,
-            //@ts-ignore
-            dataContact: dataContact,
-          });
+              ...values,
+              //@ts-ignore
+              dataContact: dataContact,
+            });
 
         const errorFormatted = {
           error: error ?? "Error",
@@ -156,12 +161,6 @@ const CompanyForm = ({
     newDataContact[index][key] = value;
     setDataContact(newDataContact);
   };
-
-  // const addInput = () => {
-  //   setDataContact([...dataContact, { name: '', email: '' }]);
-  // };
-  console.log("dataContact:", dataContact);
-  console.log("error:", errors);
 
   return (
     <form action={handleSubmit} onChange={handleChange}>
