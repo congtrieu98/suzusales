@@ -12,11 +12,16 @@ const Sidebar = async () => {
   if (session.session === null) return null;
 
   return (
-    <aside className="h-screen min-w-52 bg-muted hidden md:block p-4 pt-8 border-r border-border shadow-inner">
+    <aside className="h-screen min-w-52 bg-muted hidden lg:block p-4 pt-8 border-r border-border shadow-inner">
       <div className="flex flex-col justify-between h-full">
         <div className="space-y-4">
           <Link href={"/dashboard"}>
-            <Image width={80} height={80} src={"/assets/favicon.png"} alt="logo" />
+            <Image
+              width={80}
+              height={80}
+              src={"/assets/favicon.png"}
+              alt="logo"
+            />
           </Link>
           <SidebarItems />
         </div>
@@ -38,7 +43,9 @@ const UserDetails = ({ session }: { session: AuthSession }) => {
     <Link href="/account">
       <div className="flex items-center justify-between w-full border-t border-border pt-4 px-2">
         <div className="text-muted-foreground">
-          <p className="text-xs text-blue-400 underline">{user.name ?? "John Doe"}</p>
+          <p className="text-xs text-blue-400 underline">
+            {user.name ?? "John Doe"}
+          </p>
           <p className="text-xs font-light pr-4">
             {user.email ?? "john@doe.com"}
           </p>
@@ -48,9 +55,9 @@ const UserDetails = ({ session }: { session: AuthSession }) => {
           <AvatarFallback className="border-border border-2 text-muted-foreground">
             {user.name
               ? user.name
-                ?.split(" ")
-                .map((word) => word[0].toUpperCase())
-                .join("")
+                  ?.split(" ")
+                  .map((word) => word[0].toUpperCase())
+                  .join("")
               : "~"}
           </AvatarFallback>
         </Avatar>

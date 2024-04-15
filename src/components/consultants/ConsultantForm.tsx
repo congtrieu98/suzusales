@@ -211,7 +211,7 @@ const ConsultantForm = ({
         <Input
           type="text"
           name="customerName"
-          className={cn(errors?.customerName ? "ring ring-destructive" : "")}
+          className={cn(errors?.customerName ? "border-red-400" : "")}
           defaultValue={consultant?.customerName ?? ""}
         />
         {errors?.customerName ? (
@@ -234,7 +234,7 @@ const ConsultantForm = ({
         <Input
           type="text"
           name="projectName"
-          className={cn(errors?.projectName ? "ring ring-destructive" : "")}
+          className={cn(errors?.projectName ? "border-red-400" : "")}
           defaultValue={consultant?.projectName ?? ""}
         />
         {errors?.projectName ? (

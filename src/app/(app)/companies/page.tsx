@@ -26,7 +26,7 @@ const Companies = async () => {
   await checkAuth();
 
   const { companies } = await getCompanies();
-  const { users } = await getUsers()
+  const { users } = await getUsers();
 
   return (
     <Suspense fallback={<Loading />}>

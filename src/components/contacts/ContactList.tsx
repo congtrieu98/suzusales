@@ -14,20 +14,19 @@ import ContactForm from "./ContactForm";
 import { PlusIcon } from "lucide-react";
 import { DataTableContact } from "./table/data-table";
 import { columnsContact } from "./table/columns";
+import { CompleteCompany } from "@/lib/db/schema/companies";
 
 type TOpenModal = (contact?: Contact) => void;
 
 export default function ContactList({
   contacts,
-
+  companies,
 }: {
   contacts: CompleteContact[];
-
+  companies: CompleteCompany[];
 }) {
-  const { optimisticContacts, addOptimisticContact } = useOptimisticContacts(
-    contacts,
-
-  );
+  const { optimisticContacts, addOptimisticContact } =
+    useOptimisticContacts(contacts);
   const [open, setOpen] = useState(false);
   const [activeContact, setActiveContact] = useState<Contact | null>(null);
   const openModal = (contact?: Contact) => {
@@ -36,7 +35,7 @@ export default function ContactList({
   };
   const closeModal = () => setOpen(false);
 
-  // console.log("contacsList:", contacts)
+  // console.log("companies:", companies);
 
   return (
     <div>
@@ -50,7 +49,7 @@ export default function ContactList({
           addOptimistic={addOptimisticContact}
           openModal={openModal}
           closeModal={closeModal}
-
+          companies={companies}
         />
       </Modal>
       <div className="absolute right-0 top-0 ">
@@ -88,22 +87,19 @@ const Contact = ({
     ? pathname
     : pathname + "/contacts/";
 
-
   return (
     <li
       className={cn(
         "flex justify-between my-2",
         mutating ? "opacity-30 animate-pulse" : "",
-        deleting ? "text-destructive" : "",
+        deleting ? "text-destructive" : ""
       )}
     >
       <div className="w-full">
         <div>{contact.name}</div>
       </div>
       <Button variant={"link"} asChild>
-        <Link href={basePath + "/" + contact.id}>
-          Edit
-        </Link>
+        <Link href={basePath + "/" + contact.id}>Edit</Link>
       </Button>
     </li>
   );
@@ -120,7 +116,8 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
       </p>
       <div className="mt-6">
         <Button onClick={() => openModal()}>
-          <PlusIcon className="h-4" /> New Contacts </Button>
+          <PlusIcon className="h-4" /> New Contacts{" "}
+        </Button>
       </div>
     </div>
   );

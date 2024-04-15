@@ -24,16 +24,26 @@ import {
   deleteContactAction,
   updateContactAction,
 } from "@/lib/actions/contacts";
+import { CompleteCompany } from "@/lib/db/schema/companies";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 const ContactForm = ({
   contact,
+  companies,
   openModal,
   closeModal,
   addOptimistic,
   postSuccess,
 }: {
   contact?: Contact | null;
-
+  companies: CompleteCompany[];
   openModal?: (contact?: Contact) => void;
   closeModal?: () => void;
   addOptimistic?: TAddOptimistic;
@@ -118,7 +128,7 @@ const ContactForm = ({
   };
 
   return (
-    <form action={handleSubmit} onChange={handleChange} className={"space-y-8"}>
+    <form action={handleSubmit} onChange={handleChange}>
       {/* Schema fields start */}
       <div>
         <Label
@@ -132,7 +142,7 @@ const ContactForm = ({
         <Input
           type="text"
           name="name"
-          className={cn(errors?.name ? "ring ring-destructive" : "")}
+          className={cn(errors?.name ? "border-red-400" : "")}
           defaultValue={contact?.name ?? ""}
         />
         {errors?.name ? (
@@ -153,11 +163,43 @@ const ContactForm = ({
         <Input
           type="text"
           name="email"
-          className={cn(errors?.email ? "ring ring-destructive" : "")}
+          className={cn(errors?.email ? "border-red-400" : "")}
           defaultValue={contact?.email ?? ""}
         />
         {errors?.email ? (
           <p className="text-xs text-destructive mt-2">{errors.email[0]}</p>
+        ) : (
+          <div className="h-6" />
+        )}
+      </div>
+      <div>
+        <Label
+          className={cn(
+            "mb-2 inline-block",
+            errors?.companyId ? "text-destructive" : ""
+          )}
+        >
+          Company
+        </Label>
+        <Select
+          name="companyId"
+          defaultValue={contact?.companyId ?? "Reviewing"}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {companies?.map((item) => (
+                <SelectItem key={item.id} value={item.id}>
+                  {item?.name}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        {errors?.companyId ? (
+          <p className="text-xs text-destructive mt-2">{errors.companyId[0]}</p>
         ) : (
           <div className="h-6" />
         )}

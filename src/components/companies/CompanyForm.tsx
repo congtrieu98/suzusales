@@ -178,7 +178,7 @@ const CompanyForm = ({
           type="text"
           name="name"
           placeholder="Enter company name"
-          className={cn(errors?.name ? "ring ring-destructive" : "")}
+          className={cn(errors?.name ? "border-red-400" : "")}
           defaultValue={company?.name ?? ""}
         />
         {errors?.name ? (
@@ -207,10 +207,12 @@ const CompanyForm = ({
             <SelectGroup>
               {users?.map((item) => (
                 <SelectItem key={item.id} value={item.name as string}>
-                  <Avatar className="h-8 w-8 flex justify-between items-start">
-                    <AvatarImage src={item.image as string} />
-                  </Avatar>
-                  {item.name}
+                  <div className="flex">
+                    <Avatar className="h-8 w-8 mr-2">
+                      <AvatarImage src={item.image as string}></AvatarImage>
+                    </Avatar>
+                    <div className="mt-2">{item.name}</div>
+                  </div>
                 </SelectItem>
               ))}
             </SelectGroup>
@@ -326,7 +328,7 @@ const SaveButton = ({
   return (
     <Button
       type="submit"
-      className="mr-2"
+      className="mr-2 bg-blue-400 hover:bg-blue-400"
       disabled={isCreating || isUpdating || errors}
       aria-disabled={isCreating || isUpdating || errors}
     >
