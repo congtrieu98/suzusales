@@ -4,16 +4,20 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { cn } from "@/lib/utils";
+import { cn, currencyNumber } from "@/lib/utils";
 import { type Deal, CompleteDeal } from "@/lib/db/schema/deals";
 import Modal from "@/components/shared/Modal";
 
 import { useOptimisticDeals } from "@/app/(app)/deals/useOptimisticDeals";
 import { Button } from "@/components/ui/button";
 import DealForm from "./DealForm";
-import { PlusIcon } from "lucide-react";
+import { CircleFadingPlusIcon, Plus, PlusIcon } from "lucide-react";
 import { CompleteCompany } from "@/lib/db/schema/companies";
 import { CompleteUser } from "@/lib/db/schema/users";
+import { type SalesStage, CompleteSalesStage } from "@/lib/db/schema/salesStages";
+import { useOptimisticSalesStages } from "@/app/(app)/sales-stages/useOptimisticSalesStages";
+import SalesStageForm from "../salesStages/SalesStageForm";
+// import { type SalesStage } from "@/lib/db/schema/salesStages";
 
 type TOpenModal = (deal?: Deal) => void;
 
@@ -21,57 +25,36 @@ export default function DealList({
   deals,
   companies,
   users,
+  salesStages
 }: {
   deals: CompleteDeal[];
   companies: CompleteCompany[];
   users: CompleteUser[];
+  salesStages: CompleteSalesStage[];
+
 }) {
   const { optimisticDeals, addOptimisticDeal } = useOptimisticDeals(deals);
+  const { optimisticSalesStages, addOptimisticSalesStage } = useOptimisticSalesStages(salesStages);
   const [open, setOpen] = useState(false);
-  const [activeDeal, setActiveDeal] = useState<Deal | null>(null);
-  const openModal = (deal?: Deal) => {
+  // const [activeDeal, setActiveDeal] = useState<Deal | null>(null);
+  // const openModal = (deal?: Deal) => {
+  //   setOpen(true);
+  //   deal ? setActiveDeal(deal) : setActiveDeal(null);
+  // };
+
+  const [activeSalesStage, setActiveSalesStage] = useState<SalesStage | null>(null);
+  const openModal = (salesStage?: SalesStage) => {
     setOpen(true);
-    deal ? setActiveDeal(deal) : setActiveDeal(null);
+    salesStage ? setActiveSalesStage(salesStage) : setActiveSalesStage(null);
   };
   const closeModal = () => setOpen(false);
 
-  const data = {
-    lanes: [
-      {
-        id: "lane1",
-        title: "Planned Tasks",
-        label: "2/2",
-        cards: [
-          {
-            id: "Card1",
-            title: "Write Blog",
-            description: "Can AI make memes",
-            label: "30 mins",
-            draggable: false,
-          },
-          {
-            id: "Card2",
-            title: "Pay Rent",
-            description: "Transfer via NEFT",
-            label: "5 mins",
-            metadata: { sha: "be312a1" },
-          },
-        ],
-      },
-      {
-        id: "lane2",
-        title: "Completed",
-        label: "0/0",
-        cards: [],
-      },
-    ],
-  };
   return (
     <div>
-      <Modal
+      {/* <Modal
         open={open}
         setOpen={setOpen}
-        title={activeDeal ? "Edit Deal" : "Create Deal"}
+        title={activeDeal ? "Edit Stages" : "Create Stages"}
       >
         <DealForm
           deal={activeDeal}
@@ -81,18 +64,31 @@ export default function DealList({
           companies={companies}
           users={users}
         />
+      </Modal> */}
+      <Modal
+        open={open}
+        setOpen={setOpen}
+        title={activeSalesStage ? "Edit SalesStage" : "Create Sales Stage"}
+      >
+        <SalesStageForm
+          salesStage={activeSalesStage}
+          addOptimistic={addOptimisticSalesStage}
+          openModal={openModal}
+          closeModal={closeModal}
+
+        />
       </Modal>
       <div className="absolute right-0 top-0 ">
         <Button onClick={() => openModal()} variant={"outline"}>
           +
         </Button>
       </div>
-      {optimisticDeals.length === 0 ? (
+      {optimisticSalesStages.length === 0 ? (
         <EmptyState openModal={openModal} />
       ) : (
         <ul>
-          {optimisticDeals.map((deal) => (
-            <Deal deal={deal} key={deal.id} openModal={openModal} />
+          {optimisticSalesStages.map((stage) => (
+            <SalesStage stage={stage} key={stage.id} openModal={openModal} />
           ))}
         </ul>
       )}
@@ -100,34 +96,65 @@ export default function DealList({
   );
 }
 
-const Deal = ({
-  deal,
+const SalesStage = ({
+  stage,
   openModal,
 }: {
-  deal: CompleteDeal;
+  stage: CompleteSalesStage;
   openModal: TOpenModal;
 }) => {
-  const optimistic = deal.id === "optimistic";
-  const deleting = deal.id === "delete";
+  const optimistic = stage.id === "optimistic";
+  const deleting = stage.id === "delete";
   const mutating = optimistic || deleting;
   const pathname = usePathname();
   const basePath = pathname.includes("deals") ? pathname : pathname + "/deals/";
 
   return (
-    <li
-      className={cn(
-        "flex justify-between my-2",
-        mutating ? "opacity-30 animate-pulse" : "",
-        deleting ? "text-destructive" : ""
-      )}
-    >
-      <div className="w-full">
-        <div>{deal.name}</div>
+    // <li
+    //   className={cn(
+    //     "flex justify-between my-2",
+    //     mutating ? "opacity-30 animate-pulse" : "",
+    //     deleting ? "text-destructive" : ""
+    //   )}
+    // >
+    //   <div className="w-full">
+    //     <div>{deal.name}</div>
+    //   </div>
+    //   <Button variant={"link"} asChild>
+    //     <Link href={basePath + "/" + deal.id}>Edit</Link>
+    //   </Button>
+    // </li>
+    <div className="grid grid-cols-5 max-w-screen-xl scroll-auto gap-5 bg-gray-100 p-10">
+
+      <div>
+        <div className="flex justify-between">
+          <div className="text-xl uppercase">unssigned</div>
+          <div>
+            <CircleFadingPlusIcon />
+          </div>
+        </div>
+        <div className="price block mt-5">
+          {
+            currencyNumber(0)
+          }
+        </div>
       </div>
-      <Button variant={"link"} asChild>
-        <Link href={basePath + "/" + deal.id}>Edit</Link>
-      </Button>
-    </li>
+
+      {/* ========== item 1 =========== */}
+
+      <div>
+        <div className="flex justify-between">
+          <div className="text-xl uppercase">unssigned</div>
+          <div>
+            <CircleFadingPlusIcon />
+          </div>
+        </div>
+        <div className="price block">
+          Price
+        </div>
+      </div>
+
+    </div>
   );
 };
 
@@ -148,3 +175,4 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
     </div>
   );
 };
+

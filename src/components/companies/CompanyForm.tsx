@@ -94,6 +94,7 @@ const CompanyForm = ({
     const companyParsed = await insertCompanyParams.safeParseAsync({
       ...payload,
     });
+
     if (!companyParsed.success) {
       setErrors(companyParsed?.error.flatten().fieldErrors);
       return;
@@ -122,10 +123,10 @@ const CompanyForm = ({
         const error = editing
           ? await updateCompanyAction({ ...values, id: company.id })
           : await createCompanyAction({
-              ...values,
-              //@ts-ignore
-              dataContact: dataContact,
-            });
+            ...values,
+            //@ts-ignore
+            dataContact: dataContact,
+          });
 
         const errorFormatted = {
           error: error ?? "Error",
@@ -169,7 +170,7 @@ const CompanyForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.name ? "text-destructive" : ""
+            // errors?.name ? "text-destructive" : ""
           )}
         >
           Name
@@ -179,7 +180,7 @@ const CompanyForm = ({
           name="name"
           placeholder="Enter company name"
           className={cn(errors?.name ? "border-red-400" : "")}
-          defaultValue={company?.name ?? ""}
+          defaultValue={company?.name ?? undefined}
         />
         {errors?.name ? (
           <p className="text-xs text-destructive mt-2">{errors.name[0]}</p>
@@ -191,16 +192,16 @@ const CompanyForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.salesOwner ? "text-destructive" : ""
+            // errors?.salesOwner ? "text-destructive" : ""
           )}
         >
           Sales Owner
         </Label>
         <Select
           name="salesOwner"
-          defaultValue={editing ? company?.salesOwner : ""}
+          defaultValue={editing ? company?.salesOwner : undefined}
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger className={cn(errors?.name ? "border-red-400" : "w-full")}>
             <SelectValue placeholder="Select owner" />
           </SelectTrigger>
           <SelectContent>

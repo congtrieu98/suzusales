@@ -7,7 +7,7 @@ export type TAddOptimistic = (action: OptimisticAction<Deal>) => void;
 
 export const useOptimisticDeals = (
   deals: CompleteDeal[],
-  
+
 ) => {
   const [optimisticDeals, addOptimisticDeal] = useOptimistic(
     deals,
@@ -17,16 +17,17 @@ export const useOptimisticDeals = (
     ): CompleteDeal[] => {
       const { data } = action;
 
-      
+
 
       const optimisticDeal = {
         ...data,
-        
+
         id: "optimistic",
       };
 
       switch (action.action) {
         case "create":
+          //@ts-ignore
           return currentState.length === 0
             ? [optimisticDeal]
             : [...currentState, optimisticDeal];

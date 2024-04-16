@@ -21,12 +21,12 @@ export default async function AppLayout({
   await checkAuth();
   const session = (await getServerSession(authOptions)) as Session;
 
-  // const novu = new Novu(process.env.NOVU_SECRET_API_KEY as string);
+  const novu = new Novu(process.env.NOVU_SECRET_API_KEY as string);
 
-  // await novu.subscribers.identify(session?.user?.id, {
-  //   firstName: session?.user?.name as string,
-  //   email: session?.user?.email as string,
-  // });
+  await novu.subscribers.identify(session?.user?.id, {
+    firstName: session?.user?.name as string,
+    email: session?.user?.email as string,
+  });
 
   return (
     <main className={inter.className}>
@@ -35,7 +35,7 @@ export default async function AppLayout({
           <div className="flex h-screen">
             <Sidebar />
             <main className="flex-1 md:p-8 pt-2 p-8 overflow-y-auto">
-              <div className="justify-end mb-4 hidden md:flex">
+              <div className="justify-end mb-4 hidden lg:flex">
                 <PageSetting />
                 <NotificationMenu />
               </div>

@@ -25,7 +25,7 @@ export default function Navbar() {
   );
 
   return (
-    <div className="md:hidden border-b mb-4 pb-2 w-full">
+    <div className="lg:hidden border-b mb-4 pb-2 w-full">
       <nav className="flex justify-between w-full items-center">
         <div className="">
           <Link href={"/dashboard"}>

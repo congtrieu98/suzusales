@@ -120,7 +120,7 @@ const ConsultantForm = ({
         session?.user.role !== "ADMIN"
           ? staffIdByUser.map((rs) => rs.id)
           : //@ts-ignore
-            selectedOption?.map((item) => item?.value),
+          selectedOption?.map((item) => item?.value),
       ...values,
     };
     try {
@@ -133,30 +133,30 @@ const ConsultantForm = ({
 
         const error = editing
           ? await updateConsultantAction({
-              ...values,
-              id: consultant.id,
-              airDate: consultant?.airDate
-                ? consultant?.airDate
-                : moment(airDate).toDate(),
-              creator: session?.user.name as string,
-              assignedId:
-                session?.user.role !== "ADMIN"
-                  ? staffIdByUser.map((rs) => rs.id)
-                  : consultant?.assignedId?.length > 0
+            ...values,
+            id: consultant.id,
+            airDate: consultant?.airDate
+              ? consultant?.airDate
+              : moment(airDate).toDate(),
+            creator: session?.user.name as string,
+            assignedId:
+              session?.user.role !== "ADMIN"
+                ? staffIdByUser.map((rs) => rs.id)
+                : consultant?.assignedId?.length > 0
                   ? consultant?.assignedId
                   : selectedOption,
-            })
+          })
           : await createConsultantAction({
-              ...values,
-              airDate: moment(airDate).toDate(),
-              creator: session?.user.name as string,
-              //@ts-ignore
-              assignedId:
-                session?.user.role !== "ADMIN"
-                  ? staffIdByUser.map((rs) => rs.id)
-                  : //@ts-ignore
-                    selectedOption.map((staff) => staff?.value),
-            });
+            ...values,
+            airDate: moment(airDate).toDate(),
+            creator: session?.user.name as string,
+            //@ts-ignore
+            assignedId:
+              session?.user.role !== "ADMIN"
+                ? staffIdByUser.map((rs) => rs.id)
+                : //@ts-ignore
+                selectedOption.map((staff) => staff?.value),
+          });
         setSelectedOption([]);
         const errorFormatted = {
           error: error ?? "Error",
@@ -202,8 +202,7 @@ const ConsultantForm = ({
       <div>
         <Label
           className={cn(
-            "mb-2 inline-block",
-            errors?.customerName ? "text-destructive" : ""
+            "mb-2 inline-block"
           )}
         >
           Customer Name
@@ -225,8 +224,7 @@ const ConsultantForm = ({
       <div>
         <Label
           className={cn(
-            "mb-2 inline-block",
-            errors?.projectName ? "text-destructive" : ""
+            "mb-2 inline-block"
           )}
         >
           Project Name
@@ -249,7 +247,6 @@ const ConsultantForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.content ? "text-destructive" : ""
           )}
         >
           Description
@@ -282,11 +279,11 @@ const ConsultantForm = ({
             defaultValue={
               editing
                 ? staffs
-                    .filter((it) => consultant?.assignedId.includes(it.id))
-                    .map((rs) => ({
-                      value: rs?.id,
-                      label: rs?.email,
-                    }))
+                  .filter((it) => consultant?.assignedId.includes(it.id))
+                  .map((rs) => ({
+                    value: rs?.id,
+                    label: rs?.email,
+                  }))
                 : selectedOption
             }
             //@ts-ignore

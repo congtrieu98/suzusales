@@ -7,61 +7,52 @@ import { toast } from "sonner";
 import { useValidatedForm } from "@/lib/hooks/useValidatedForm";
 
 import { type Action, cn } from "@/lib/utils";
-import { type TAddOptimistic } from "@/app/(app)/contacts/useOptimisticContacts";
+import { type TAddOptimistic } from "@/app/(app)/sales-stages/useOptimisticSalesStages";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useBackPath } from "@/components/shared/BackButton";
 
-import {
-  type Contact,
-  insertContactParams,
-  CompleteContact,
-} from "@/lib/db/schema/contacts";
-import {
-  createContactAction,
-  deleteContactAction,
-  updateContactAction,
-} from "@/lib/actions/contacts";
-import { CompleteCompany } from "@/lib/db/schema/companies";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 
-const ContactForm = ({
-  contact,
-  companies,
+
+import { type SalesStage, insertSalesStageParams } from "@/lib/db/schema/salesStages";
+import {
+  createSalesStageAction,
+  deleteSalesStageAction,
+  updateSalesStageAction,
+} from "@/lib/actions/salesStages";
+
+
+const SalesStageForm = ({
+
+  salesStage,
   openModal,
   closeModal,
   addOptimistic,
   postSuccess,
 }: {
-  contact?: Contact | null;
-  companies: CompleteCompany[];
-  openModal?: (contact?: Contact) => void;
+  salesStage?: SalesStage | null;
+
+  openModal?: (salesStage?: SalesStage) => void;
   closeModal?: () => void;
   addOptimistic?: TAddOptimistic;
   postSuccess?: () => void;
 }) => {
   const { errors, hasErrors, setErrors, handleChange } =
-    useValidatedForm<Contact>(insertContactParams);
-  const editing = !!contact?.id;
+    useValidatedForm<SalesStage>(insertSalesStageParams);
+  const editing = !!salesStage?.id;
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [pending, startMutation] = useTransition();
 
   const router = useRouter();
-  const backpath = useBackPath("contacts");
+  const backpath = useBackPath("sales-stages");
+
 
   const onSuccess = (
     action: Action,
-    data?: { error: string; values: Contact }
+    data?: { error: string; values: SalesStage },
   ) => {
     const failed = Boolean(data?.error);
     if (failed) {
@@ -72,7 +63,7 @@ const ContactForm = ({
     } else {
       router.refresh();
       postSuccess && postSuccess();
-      toast.success(`Contact ${action}d!`);
+      toast.success(`SalesStage ${action}d!`);
       if (action === "delete") router.push(backpath);
     }
   };
@@ -81,43 +72,39 @@ const ContactForm = ({
     setErrors(null);
 
     const payload = Object.fromEntries(data.entries());
-    const contactParsed = await insertContactParams.safeParseAsync({
-      ...payload,
-    });
-    if (!contactParsed.success) {
-      setErrors(contactParsed?.error.flatten().fieldErrors);
+    const salesStageParsed = await insertSalesStageParams.safeParseAsync({ ...payload });
+    if (!salesStageParsed.success) {
+      setErrors(salesStageParsed?.error.flatten().fieldErrors);
       return;
     }
 
     closeModal && closeModal();
-    const values = contactParsed.data;
-    const pendingContact: Contact = {
-      updatedAt: contact?.updatedAt ?? new Date(),
-      createdAt: contact?.createdAt ?? new Date(),
-      id: contact?.id ?? "",
-      userId: contact?.userId ?? "",
+    const values = salesStageParsed.data;
+    const pendingSalesStage: SalesStage = {
+      updatedAt: salesStage?.updatedAt ?? new Date(),
+      createdAt: salesStage?.createdAt ?? new Date(),
+      id: salesStage?.id ?? "",
+      userId: salesStage?.userId ?? "",
       ...values,
     };
     try {
       startMutation(async () => {
-        addOptimistic &&
-          addOptimistic({
-            // @ts-ignore
-            data: pendingContact,
-            action: editing ? "update" : "create",
-          });
+        addOptimistic && addOptimistic({
+          data: pendingSalesStage,
+          action: editing ? "update" : "create",
+        });
 
         const error = editing
-          ? await updateContactAction({ ...values, id: contact.id })
-          : await createContactAction(values);
+          ? await updateSalesStageAction({ ...values, id: salesStage.id })
+          : await createSalesStageAction(values);
 
         const errorFormatted = {
           error: error ?? "Error",
-          values: pendingContact,
+          values: pendingSalesStage
         };
         onSuccess(
           editing ? "update" : "create",
-          error ? errorFormatted : undefined
+          error ? errorFormatted : undefined,
         );
       });
     } catch (e) {
@@ -134,6 +121,7 @@ const ContactForm = ({
         <Label
           className={cn(
             "mb-2 inline-block",
+            errors?.name ? "text-destructive" : "",
           )}
         >
           Name
@@ -141,62 +129,11 @@ const ContactForm = ({
         <Input
           type="text"
           name="name"
-          className={cn(errors?.name ? "border-red-400" : "")}
-          defaultValue={contact?.name ?? ""}
+          className={cn(errors?.name ? "ring ring-destructive" : "")}
+          defaultValue={salesStage?.name ?? ""}
         />
         {errors?.name ? (
           <p className="text-xs text-destructive mt-2">{errors.name[0]}</p>
-        ) : (
-          <div className="h-6" />
-        )}
-      </div>
-      <div>
-        <Label
-          className={cn(
-            "mb-2 inline-block",
-          )}
-        >
-          Email
-        </Label>
-        <Input
-          type="text"
-          name="email"
-          className={cn(errors?.email ? "border-red-400" : "")}
-          defaultValue={contact?.email ?? ""}
-        />
-        {errors?.email ? (
-          <p className="text-xs text-destructive mt-2">{errors.email[0]}</p>
-        ) : (
-          <div className="h-6" />
-        )}
-      </div>
-      <div>
-        <Label
-          className={cn(
-            "mb-2 inline-block"
-          )}
-        >
-          Company
-        </Label>
-        <Select
-          name="companyId"
-          defaultValue={contact?.companyId ?? undefined}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              {companies?.map((item) => (
-                <SelectItem key={item.id} value={item.id}>
-                  {item?.name}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-        {errors?.companyId ? (
-          <p className="text-xs text-destructive mt-2">{errors.companyId[0]}</p>
         ) : (
           <div className="h-6" />
         )}
@@ -216,17 +153,12 @@ const ContactForm = ({
             setIsDeleting(true);
             closeModal && closeModal();
             startMutation(async () => {
-              addOptimistic &&
-                addOptimistic({
-                  action: "delete",
-                  // @ts-ignore
-                  data: contact,
-                });
-              const error = await deleteContactAction(contact.id);
+              addOptimistic && addOptimistic({ action: "delete", data: salesStage });
+              const error = await deleteSalesStageAction(salesStage.id);
               setIsDeleting(false);
               const errorFormatted = {
                 error: error ?? "Error",
-                values: contact,
+                values: salesStage,
               };
 
               onSuccess("delete", error ? errorFormatted : undefined);
@@ -240,7 +172,7 @@ const ContactForm = ({
   );
 };
 
-export default ContactForm;
+export default SalesStageForm;
 
 const SaveButton = ({
   editing,

@@ -7,6 +7,7 @@ import { getDeals } from "@/lib/api/deals/queries";
 import { checkAuth } from "@/lib/auth/utils";
 import { getCompanies } from "@/lib/api/companies/queries";
 import { getUsers } from "@/lib/api/users/queries";
+import { getSalesStages } from "@/lib/api/salesStages/queries";
 
 export const revalidate = 0;
 
@@ -29,10 +30,11 @@ const Deals = async () => {
   const { deals } = await getDeals();
   const { companies } = await getCompanies();
   const { users } = await getUsers();
+  const { salesStages } = await getSalesStages();
 
   return (
     <Suspense fallback={<Loading />}>
-      <DealList deals={deals} companies={companies} users={users} />
+      <DealList deals={deals} companies={companies} users={users} salesStages={salesStages} />
     </Suspense>
   );
 };

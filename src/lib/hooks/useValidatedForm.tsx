@@ -19,6 +19,7 @@ export function useValidatedForm<Entity>(insertEntityZodSchema: ZodSchema) {
       target instanceof HTMLTextAreaElement
     ) {
       if (!(target instanceof HTMLInputElement && target.type === "submit")) {
+
         const field = target.name as keyof Entity;
         const result = insertEntityZodSchema.safeParse({
           [field]: target.value,
@@ -32,7 +33,9 @@ export function useValidatedForm<Entity>(insertEntityZodSchema: ZodSchema) {
           [field]: fieldError,
         }));
       }
+
     }
+    console.log("errors", errors)
   };
   return { errors, setErrors, handleChange, hasErrors };
 }

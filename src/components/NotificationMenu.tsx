@@ -17,11 +17,8 @@ function NotificationMenu() {
   const handleOnNotificationClick = (message: IMessage) => {
     if (message?.payload?.url) {
       if (pathname === `/consultants/${message?.payload?.url}`) {
-        console.log("vao dauy");
 
         const spanElement = document.getElementById("mantine-r0-target");
-        console.log("spanElement:", spanElement);
-        console.log("spanAttr:", spanElement?.getAttribute("aria-expanded"));
         const isExpanded =
           spanElement?.getAttribute("aria-expanded") === "true";
         spanElement?.setAttribute(
