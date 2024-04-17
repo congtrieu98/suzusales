@@ -14,9 +14,14 @@ import DealForm from "./DealForm";
 import { CircleFadingPlusIcon, Plus, PlusIcon } from "lucide-react";
 import { CompleteCompany } from "@/lib/db/schema/companies";
 import { CompleteUser } from "@/lib/db/schema/users";
-import { type SalesStage, CompleteSalesStage } from "@/lib/db/schema/salesStages";
+import {
+  type SalesStage,
+  CompleteSalesStage,
+} from "@/lib/db/schema/salesStages";
 import { useOptimisticSalesStages } from "@/app/(app)/sales-stages/useOptimisticSalesStages";
 import SalesStageForm from "../salesStages/SalesStageForm";
+import { ListHeader } from "./components/list-header";
+import { ListForm } from "./components/list-form";
 // import { type SalesStage } from "@/lib/db/schema/salesStages";
 
 type TOpenModal = (deal?: Deal) => void;
@@ -25,16 +30,16 @@ export default function DealList({
   deals,
   companies,
   users,
-  salesStages
+  salesStages,
 }: {
   deals: CompleteDeal[];
   companies: CompleteCompany[];
   users: CompleteUser[];
   salesStages: CompleteSalesStage[];
-
 }) {
   const { optimisticDeals, addOptimisticDeal } = useOptimisticDeals(deals);
-  const { optimisticSalesStages, addOptimisticSalesStage } = useOptimisticSalesStages(salesStages);
+  const { optimisticSalesStages, addOptimisticSalesStage } =
+    useOptimisticSalesStages(salesStages);
   const [open, setOpen] = useState(false);
   // const [activeDeal, setActiveDeal] = useState<Deal | null>(null);
   // const openModal = (deal?: Deal) => {
@@ -42,7 +47,9 @@ export default function DealList({
   //   deal ? setActiveDeal(deal) : setActiveDeal(null);
   // };
 
-  const [activeSalesStage, setActiveSalesStage] = useState<SalesStage | null>(null);
+  const [activeSalesStage, setActiveSalesStage] = useState<SalesStage | null>(
+    null
+  );
   const openModal = (salesStage?: SalesStage) => {
     setOpen(true);
     salesStage ? setActiveSalesStage(salesStage) : setActiveSalesStage(null);
@@ -75,7 +82,6 @@ export default function DealList({
           addOptimistic={addOptimisticSalesStage}
           openModal={openModal}
           closeModal={closeModal}
-
         />
       </Modal>
       <div className="absolute right-0 top-0 ">
@@ -86,23 +92,20 @@ export default function DealList({
       {optimisticSalesStages.length === 0 ? (
         <EmptyState openModal={openModal} />
       ) : (
-        <ul>
-          {optimisticSalesStages.map((stage) => (
-            <SalesStage stage={stage} key={stage.id} openModal={openModal} />
-          ))}
-        </ul>
+        <div className="max-h-screen">
+          <ol className="flex gap-x-3 h-full">
+            {optimisticSalesStages.map((stage) => (
+              <SalesStage stage={stage} key={stage.id} />
+            ))}
+            <ListForm />
+          </ol>
+        </div>
       )}
     </div>
   );
 }
 
-const SalesStage = ({
-  stage,
-  openModal,
-}: {
-  stage: CompleteSalesStage;
-  openModal: TOpenModal;
-}) => {
+const SalesStage = ({ stage }: { stage: CompleteSalesStage }) => {
   const optimistic = stage.id === "optimistic";
   const deleting = stage.id === "delete";
   const mutating = optimistic || deleting;
@@ -110,51 +113,11 @@ const SalesStage = ({
   const basePath = pathname.includes("deals") ? pathname : pathname + "/deals/";
 
   return (
-    // <li
-    //   className={cn(
-    //     "flex justify-between my-2",
-    //     mutating ? "opacity-30 animate-pulse" : "",
-    //     deleting ? "text-destructive" : ""
-    //   )}
-    // >
-    //   <div className="w-full">
-    //     <div>{deal.name}</div>
-    //   </div>
-    //   <Button variant={"link"} asChild>
-    //     <Link href={basePath + "/" + deal.id}>Edit</Link>
-    //   </Button>
-    // </li>
-    <div className="grid grid-cols-5 max-w-screen-xl scroll-auto gap-5 bg-gray-100 p-10">
-
-      <div>
-        <div className="flex justify-between">
-          <div className="text-xl uppercase">unssigned</div>
-          <div>
-            <CircleFadingPlusIcon />
-          </div>
-        </div>
-        <div className="price block mt-5">
-          {
-            currencyNumber(0)
-          }
-        </div>
+    <li className="shrink-0 h-full w-[272px] select-none">
+      <div className="w-full rounded-md bg-[#f1f2f4] shadow-md pb-2">
+        <ListHeader />
       </div>
-
-      {/* ========== item 1 =========== */}
-
-      <div>
-        <div className="flex justify-between">
-          <div className="text-xl uppercase">unssigned</div>
-          <div>
-            <CircleFadingPlusIcon />
-          </div>
-        </div>
-        <div className="price block">
-          Price
-        </div>
-      </div>
-
-    </div>
+    </li>
   );
 };
 
@@ -162,17 +125,16 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
   return (
     <div className="text-center">
       <h3 className="mt-2 text-sm font-semibold text-secondary-foreground">
-        No deals
+        No stages
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">
-        Get started by creating a new deal.
+        Get started by creating a new stages.
       </p>
       <div className="mt-6">
         <Button onClick={() => openModal()}>
-          <PlusIcon className="h-4" /> New Deals{" "}
+          <PlusIcon className="h-4" /> New Stages{" "}
         </Button>
       </div>
     </div>
   );
 };
-
