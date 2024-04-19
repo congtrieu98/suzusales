@@ -1,17 +1,20 @@
 import { db } from "@/lib/db/index";
-import { 
-  SalesStageId, 
+import {
+  SalesStageId,
   NewSalesStageParams,
-  UpdateSalesStageParams, 
+  UpdateSalesStageParams,
   updateSalesStageSchema,
-  insertSalesStageSchema, 
-  salesStageIdSchema 
+  insertSalesStageSchema,
+  salesStageIdSchema,
 } from "@/lib/db/schema/salesStages";
 import { getUserAuth } from "@/lib/auth/utils";
 
 export const createSalesStage = async (salesStage: NewSalesStageParams) => {
   const { session } = await getUserAuth();
-  const newSalesStage = insertSalesStageSchema.parse({ ...salesStage, userId: session?.user.id! });
+  const newSalesStage = insertSalesStageSchema.parse({
+    ...salesStage,
+    userId: session?.user.id!,
+  });
   try {
     const s = await db.salesStage.create({ data: newSalesStage });
     return { salesStage: s };
@@ -22,12 +25,21 @@ export const createSalesStage = async (salesStage: NewSalesStageParams) => {
   }
 };
 
-export const updateSalesStage = async (id: SalesStageId, salesStage: UpdateSalesStageParams) => {
+export const updateSalesStage = async (
+  id: SalesStageId,
+  salesStage: UpdateSalesStageParams
+) => {
   const { session } = await getUserAuth();
   const { id: salesStageId } = salesStageIdSchema.parse({ id });
-  const newSalesStage = updateSalesStageSchema.parse({ ...salesStage, userId: session?.user.id! });
+  const newSalesStage = updateSalesStageSchema.parse({
+    ...salesStage,
+    userId: session?.user.id!,
+  });
   try {
-    const s = await db.salesStage.update({ where: { id: salesStageId, userId: session?.user.id! }, data: newSalesStage})
+    const s = await db.salesStage.update({
+      where: { id: salesStageId, userId: session?.user.id! },
+      data: newSalesStage,
+    });
     return { salesStage: s };
   } catch (err) {
     const message = (err as Error).message ?? "Error, please try again";
@@ -40,7 +52,9 @@ export const deleteSalesStage = async (id: SalesStageId) => {
   const { session } = await getUserAuth();
   const { id: salesStageId } = salesStageIdSchema.parse({ id });
   try {
-    const s = await db.salesStage.delete({ where: { id: salesStageId, userId: session?.user.id! }})
+    const s = await db.salesStage.delete({
+      where: { id: salesStageId, userId: session?.user.id! },
+    });
     return { salesStage: s };
   } catch (err) {
     const message = (err as Error).message ?? "Error, please try again";
@@ -49,3 +63,30 @@ export const deleteSalesStage = async (id: SalesStageId) => {
   }
 };
 
+export const copySalesStage = async (id: SalesStageId) => {
+  const { session } = await getUserAuth();
+  const { id: salesStageId } = salesStageIdSchema.parse({ id });
+  try {
+    const saleStageTocopy = await db.salesStage.findUnique({
+      where: { id: salesStageId },
+    });
+
+    if (!saleStageTocopy) {
+      return { error: "List not found" };
+    }
+
+    const list = await db.salesStage.create({
+      //@ts-ignore
+      data: {
+        name: `${saleStageTocopy.name} - Copy`,
+        userId: session?.user?.id,
+      },
+    });
+
+    return { salesStageCopy: list };
+  } catch (err) {
+    const message = (err as Error).message ?? "Error, please try again";
+    console.error(message);
+    throw { error: message };
+  }
+};

@@ -48,28 +48,21 @@ const SalesStageForm = ({
   addOptimistic?: TAddOptimistic;
   isEditing?: boolean;
   setIsEditing?: Dispatch<SetStateAction<boolean>>;
+  name?: string;
+  setName?: Dispatch<SetStateAction<string>>;
   // postSuccess?: () => void;
 }) => {
   const { errors, hasErrors, setErrors, handleChange } =
     useValidatedForm<SalesStage>(insertSalesStageParams);
   const editing = !!salesStage?.id;
 
-  const [isDeleting, setIsDeleting] = useState(false);
   const [pending, startMutation] = useTransition();
 
   const router = useRouter();
-  const backpath = useBackPath("sales-stages");
+  const backpath = useBackPath("deals");
 
   const formRef = useRef<ElementRef<"form">>(null);
   const inputRef = useRef<ElementRef<"input">>(null);
-
-  // const enableEditing = () => {
-  //   console.log("gsafdhjdfv");
-  //   setIsEditing(true);
-  //   setTimeout(() => {
-  //     inputRef.current?.focus();
-  //   });
-  // };
 
   const disableEditing = () => {
     //@ts-ignore
@@ -78,6 +71,7 @@ const SalesStageForm = ({
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Escape") {
+      formRef?.current?.requestSubmit();
       disableEditing();
     }
   };
@@ -90,6 +84,7 @@ const SalesStageForm = ({
     data?: { error: string; values: SalesStage }
   ) => {
     const failed = Boolean(data?.error);
+
     if (failed) {
       openModal && openModal(data?.values);
       toast.error(`Failed to ${action}`, {
@@ -98,6 +93,7 @@ const SalesStageForm = ({
     } else {
       router.refresh();
       // postSuccess && postSuccess();
+      disableEditing();
       toast.success(`SalesStage ${action}d!`);
       if (action === "delete") router.push(backpath);
     }
@@ -156,14 +152,16 @@ const SalesStageForm = ({
     <form ref={formRef} action={handleSubmit} onChange={handleChange}>
       {/* Schema fields start */}
       <div>
-        <Label
-          className={cn(
-            "mb-2 inline-block",
-            errors?.name ? "text-destructive" : ""
-          )}
-        >
-          Name
-        </Label>
+        {!editing && (
+          <Label
+            className={cn(
+              "mb-2 inline-block",
+              errors?.name ? "text-destructive" : ""
+            )}
+          >
+            Name
+          </Label>
+        )}
         <Input
           ref={inputRef}
           type="text"
@@ -172,42 +170,13 @@ const SalesStageForm = ({
           defaultValue={salesStage?.name ?? ""}
         />
         {errors?.name ? (
-          <p className="text-xs mt-2">{errors.name[0]}</p>
-        ) : (
-          <div className="h-6" />
-        )}
+          <p className="text-xs mt-2 text-red-500 mb-2">{errors.name[0]}</p>
+        ) : null}
       </div>
       {/* Schema fields end */}
 
       {/* Save Button */}
-      <SaveButton errors={hasErrors} editing={editing} />
-
-      {/* Delete Button */}
-      {editing ? (
-        <Button
-          type="button"
-          disabled={isDeleting || pending || hasErrors}
-          variant={"destructive"}
-          onClick={() => {
-            setIsDeleting(true);
-            closeModal && closeModal();
-            startMutation(async () => {
-              addOptimistic &&
-                addOptimistic({ action: "delete", data: salesStage });
-              const error = await deleteSalesStageAction(salesStage.id);
-              setIsDeleting(false);
-              const errorFormatted = {
-                error: error ?? "Error",
-                values: salesStage,
-              };
-
-              onSuccess("delete", error ? errorFormatted : undefined);
-            });
-          }}
-        >
-          Delet{isDeleting ? "ing..." : "e"}
-        </Button>
-      ) : null}
+      {!editing && <SaveButton errors={hasErrors} editing={editing} />}
     </form>
   );
 };
@@ -227,7 +196,7 @@ const SaveButton = ({
   return (
     <Button
       type="submit"
-      className="text-sm bg-blue-500 hover:bg-blue-500"
+      className="text-sm bg-blue-500 hover:bg-blue-500 mt-2"
       disabled={isCreating || isUpdating || errors}
       aria-disabled={isCreating || isUpdating || errors}
     >

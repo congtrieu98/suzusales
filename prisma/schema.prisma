@@ -225,7 +225,18 @@ model SalesStage {
   id        String   @id @default(cuid())
   name      String
   userId    String
+  cardStage CardStage[]     
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CardStage {
+  id    String @id @default(cuid())
+  title String
+  salesStageId String
+  salesStage      SalesStage     @relation(fields: [salesStageId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

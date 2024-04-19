@@ -10,7 +10,7 @@ export const timestamps: { createdAt: true; updatedAt: true } = {
   updatedAt: true,
 };
 
-export type Action = "create" | "update" | "delete";
+export type Action = "create" | "update" | "delete" | "copies";
 
 export type OptimisticAction<T> = {
   action: Action;
@@ -19,7 +19,7 @@ export type OptimisticAction<T> = {
 
 export const currencyNumber = (
   value: number,
-  options?: Intl.NumberFormatOptions,
+  options?: Intl.NumberFormatOptions
 ) => {
   if (
     typeof Intl === "object" &&

@@ -34,7 +34,12 @@ const Deals = async () => {
 
   return (
     <Suspense fallback={<Loading />}>
-      <DealList deals={deals} companies={companies} users={users} salesStages={salesStages} />
+      <DealList
+        deals={deals}
+        companies={companies}
+        users={users}
+        salesStages={salesStages}
+      />
     </Suspense>
   );
 };

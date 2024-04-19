@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import {
+  copySalesStage,
   createSalesStage,
   deleteSalesStage,
   updateSalesStage,
@@ -51,6 +52,16 @@ export const deleteSalesStageAction = async (input: SalesStageId) => {
   try {
     const payload = salesStageIdSchema.parse({ id: input });
     await deleteSalesStage(payload.id);
+    revalidateSalesStages();
+  } catch (e) {
+    return handleErrors(e);
+  }
+};
+
+export const copySalesStageAction = async (input: SalesStageId) => {
+  try {
+    const payload = salesStageIdSchema.parse({ id: input });
+    await copySalesStage(payload.id);
     revalidateSalesStages();
   } catch (e) {
     return handleErrors(e);
