@@ -41,7 +41,7 @@ const CardStageForm = ({
   closeModal?: () => void;
   addOptimistic?: TAddOptimistic;
   postSuccess?: () => void;
-  ref: ForwardedRef<HTMLTextAreaElement>;
+  ref: ForwardedRef<HTMLInputElement>;
   disableEditing: () => void;
 }) => {
   const { errors, hasErrors, setErrors, handleChange } =
@@ -79,6 +79,7 @@ const CardStageForm = ({
     const cardStageParsed = await insertCardStageParams.safeParseAsync({
       ...payload,
     });
+
     if (!cardStageParsed.success) {
       setErrors(cardStageParsed?.error.flatten().fieldErrors);
       return;
@@ -123,7 +124,7 @@ const CardStageForm = ({
   return (
     <form action={handleSubmit} onChange={handleChange}>
       {/* Schema fields start */}
-      <div>
+      <div className="mx-2 mt-2">
         <Input
           // @ts-ignore
           ref={ref}
@@ -136,6 +137,8 @@ const CardStageForm = ({
         {errors?.title ? (
           <p className="text-xs text-destructive mt-2">{errors.title[0]}</p>
         ) : null}
+
+        <Input type="hidden" id="listId" name="salesStageId" value={listId} />
       </div>
       {/* Schema fields end */}
 
@@ -200,10 +203,10 @@ const SaveButton = ({
       >
         {editing
           ? `Sav${isUpdating ? "ing..." : "e"}`
-          : `Add${isCreating ? "ing... card" : " card"}`}
+          : `Add${isCreating ? "ing..." : " card"}`}
       </Button>
-      <Button variant="ghost" className="mt-2">
-        <X size={16} onClick={disableEditing} />
+      <Button variant="ghost" className="mt-2" onClick={disableEditing}>
+        <X size={16} />
       </Button>
     </div>
   );

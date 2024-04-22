@@ -1,35 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
-import { type Deal, CompleteDeal } from "@/lib/db/schema/deals";
-import Modal from "@/components/shared/Modal";
+import { CompleteDeal } from "@/lib/db/schema/deals";
+import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 
-import { useOptimisticDeals } from "@/app/(app)/deals/useOptimisticDeals";
-import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
 import { CompleteCompany } from "@/lib/db/schema/companies";
 import { CompleteUser } from "@/lib/db/schema/users";
-import {
-  type SalesStage,
-  CompleteSalesStage,
-} from "@/lib/db/schema/salesStages";
+import { CompleteSalesStage } from "@/lib/db/schema/salesStages";
 import { useOptimisticSalesStages } from "@/app/(app)/sales-stages/useOptimisticSalesStages";
-import SalesStageForm from "../salesStages/SalesStageForm";
-import { ListHeader } from "./components/list-header";
 import { ListForm } from "./components/list-form";
-import { type TAddOptimistic } from "@/app/(app)/companies/useOptimisticCompanies";
 import ListItem from "./components/list-item";
 
-// import { type SalesStage } from "@/lib/db/schema/salesStages";
-
-type TOpenModal = (deal?: Deal) => void;
-
 export default function DealList({
-  deals,
-  companies,
-  users,
   salesStages,
 }: {
   deals: CompleteDeal[];
@@ -37,51 +20,154 @@ export default function DealList({
   users: CompleteUser[];
   salesStages: CompleteSalesStage[];
 }) {
-  const { optimisticDeals, addOptimisticDeal } = useOptimisticDeals(deals);
   const { optimisticSalesStages, addOptimisticSalesStage } =
     useOptimisticSalesStages(salesStages);
-  const [open, setOpen] = useState(false);
 
-  const [activeSalesStage, setActiveSalesStage] = useState<SalesStage | null>(
-    null
+  const [dataSalesStageDrag, setDataSalesStageDrag] = useState(
+    optimisticSalesStages
   );
-  const openModal = (salesStage?: SalesStage) => {
-    setOpen(true);
-    salesStage ? setActiveSalesStage(salesStage) : setActiveSalesStage(null);
+
+  // TODO: TH nếu chưa drag thì ok, còn nếu đã có drag thì lúc tạo vẫn bị lỗi do chưa set lại status
+
+  const [isDrag, setIsDrag] = useState(false);
+
+  function reorder<T>(list: T[], startIndex: number, endIndex: number) {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+
+    return result;
+  }
+
+  const onDragEnd = (result: any) => {
+    const { destination, source, type } = result;
+    setIsDrag(!isDrag);
+
+    if (!destination) {
+      return;
+    }
+
+    //if dropped in the same position
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
+
+    // User move a list
+    if (type === "list") {
+      const items = reorder(
+        dataSalesStageDrag,
+        source.index,
+        destination.index
+      ).map((item, index) => ({ ...item, order: index }));
+      setDataSalesStageDrag(items);
+      // TODO Trigger Server Action
+    }
+
+    // User move a card
+    if (type === "card") {
+      let newDataSalesStageDrag = [...dataSalesStageDrag];
+
+      // Source and destination list
+      const sourceList = newDataSalesStageDrag.find(
+        (list) => list.id === source.droppableId
+      );
+      const destList = newDataSalesStageDrag.find(
+        (list) => list.id === destination.droppableId
+      );
+
+      if (!sourceList || !destList) {
+        return;
+      }
+
+      // Check if card exists on the sourceList
+      if (!sourceList.cardStage) {
+        sourceList.cardStage = [];
+      }
+
+      // Check if card exists on the desList
+      if (!destList.cardStage) {
+        destList.cardStage = [];
+      }
+
+      // Moving the card in the same list
+      if (source.droppableId === destination.droppableId) {
+        const reorderdCards = reorder(
+          sourceList.cardStage,
+          source.index,
+          destination.index
+        );
+
+        reorderdCards.forEach((card, idx) => {
+          card.order = idx;
+        });
+
+        sourceList.cardStage = reorderdCards;
+
+        setDataSalesStageDrag(newDataSalesStageDrag);
+        // TODO: Trigger Server Action
+
+        // User move the card to another list
+      } else {
+        // Remove card from the source list
+        const [movedCard] = sourceList.cardStage.splice(source.index, 1);
+
+        // Assign the new listId to the moved card
+        movedCard.id = destination.droppableId;
+
+        // Add card to the destination list
+        destList.cardStage.splice(destination.index, 0, movedCard);
+
+        sourceList.cardStage.forEach((card, idx) => {
+          card.order = idx;
+        });
+
+        // Update the order for each card in the destination list
+
+        destList.cardStage.forEach((card, idx) => {
+          card.order = idx;
+        });
+
+        setDataSalesStageDrag(newDataSalesStageDrag);
+        // TODO: Trigger Server Action
+      }
+    }
   };
-  const closeModal = () => setOpen(false);
 
   return (
     <div>
-      <Modal
-        open={open}
-        setOpen={setOpen}
-        title={activeSalesStage ? "Edit SalesStage" : "Create Sales Stage"}
-      >
-        <SalesStageForm
-          salesStage={activeSalesStage}
-          addOptimistic={addOptimisticSalesStage}
-          openModal={openModal}
-          closeModal={closeModal}
-        />
-      </Modal>
-
       {optimisticSalesStages.length === 0 ? (
         <ol>
           <ListForm />
         </ol>
       ) : (
         <div className="max-h-screen">
-          <ol className="flex gap-3 h-full flex-wrap">
-            {optimisticSalesStages.map((stage) => (
-              <ListItem
-                stage={stage}
-                key={stage.id}
-                addOptimistic={addOptimisticSalesStage}
-              />
-            ))}
-            <ListForm />
-          </ol>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="list" type="list" direction="horizontal">
+              {(provided) => (
+                <ol
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className="flex gap-3 h-full flex-wrap"
+                >
+                  {(isDrag ? dataSalesStageDrag : optimisticSalesStages).map(
+                    (stage, index) => (
+                      <ListItem
+                        stage={stage}
+                        key={stage.id}
+                        index={index}
+                        addOptimistic={addOptimisticSalesStage}
+                      />
+                    )
+                  )}
+                  {provided.placeholder}
+                  <ListForm />
+                </ol>
+              )}
+            </Droppable>
+          </DragDropContext>
         </div>
       )}
     </div>

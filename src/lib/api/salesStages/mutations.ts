@@ -11,9 +11,16 @@ import { getUserAuth } from "@/lib/auth/utils";
 
 export const createSalesStage = async (salesStage: NewSalesStageParams) => {
   const { session } = await getUserAuth();
+  const lastList = await db.salesStage.findFirst({
+    orderBy: { order: "desc" },
+    select: { order: true },
+  });
+
+  const newOrder = lastList ? lastList.order + 1 : 1;
   const newSalesStage = insertSalesStageSchema.parse({
     ...salesStage,
     userId: session?.user.id!,
+    order: newOrder,
   });
   try {
     const s = await db.salesStage.create({ data: newSalesStage });
@@ -69,17 +76,40 @@ export const copySalesStage = async (id: SalesStageId) => {
   try {
     const saleStageTocopy = await db.salesStage.findUnique({
       where: { id: salesStageId },
+      include: {
+        cardStage: true,
+      },
     });
 
     if (!saleStageTocopy) {
       return { error: "List not found" };
     }
 
+    const lastList = await db.salesStage.findFirst({
+      orderBy: { order: "desc" },
+      select: { order: true },
+    });
+
+    const newOrder = lastList ? lastList.order + 1 : 1;
+
     const list = await db.salesStage.create({
       //@ts-ignore
       data: {
         name: `${saleStageTocopy.name} - Copy`,
         userId: session?.user?.id,
+        order: newOrder,
+        cardStage: {
+          createMany: {
+            data: saleStageTocopy.cardStage.map((card) => ({
+              title: card.title,
+              description: card.description,
+              order: card.order,
+            })),
+          },
+        },
+      },
+      include: {
+        cardStage: true,
       },
     });
 

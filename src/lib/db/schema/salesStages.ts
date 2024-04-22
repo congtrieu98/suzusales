@@ -14,6 +14,7 @@ export const insertSalesStageParams = baseSchema
   .omit({
     id: true,
     userId: true,
+    order: true,
   });
 
 export const updateSalesStageSchema = baseSchema;

@@ -118,6 +118,7 @@ const SalesStageForm = ({
       createdAt: salesStage?.createdAt ?? new Date(),
       id: salesStage?.id ?? "",
       userId: salesStage?.userId ?? "",
+      order: 1,
       ...values,
     };
     try {
@@ -129,7 +130,11 @@ const SalesStageForm = ({
           });
 
         const error = editing
-          ? await updateSalesStageAction({ ...values, id: salesStage.id })
+          ? await updateSalesStageAction({
+              ...values,
+              id: salesStage.id,
+              order: salesStage?.order ? salesStage?.order : 1,
+            })
           : await createSalesStageAction(values);
 
         const errorFormatted = {

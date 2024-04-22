@@ -8,8 +8,15 @@ import {
 export const getSalesStages = async () => {
   const { session } = await getUserAuth();
   const s = await db.salesStage.findMany({
+    include: {
+      cardStage: {
+        orderBy: {
+          order: "asc",
+        },
+      },
+    },
     orderBy: {
-      createdAt: "desc",
+      order: "asc",
     },
   });
   return { salesStages: s };

@@ -24,6 +24,7 @@ export const useOptimisticSalesStages = (salesStages: CompleteSalesStage[]) => {
 
       switch (action.action) {
         case "create":
+          // @ts-ignore
           return currentState.length === 0
             ? [optimisticSalesStage]
             : [...currentState, optimisticSalesStage];
