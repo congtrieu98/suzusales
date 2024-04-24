@@ -11,6 +11,9 @@ import { CompleteSalesStage } from "@/lib/db/schema/salesStages";
 import { useOptimisticSalesStages } from "@/app/(app)/sales-stages/useOptimisticSalesStages";
 import { ListForm } from "./components/list-form";
 import ListItem from "./components/list-item";
+import { updateSalesStageOrderAction } from "@/lib/actions/salesStages";
+import { toast } from "sonner";
+import { updateCardStageOrderAction } from "@/lib/actions/cardStages";
 
 export default function DealList({
   salesStages,
@@ -23,13 +26,15 @@ export default function DealList({
   const { optimisticSalesStages, addOptimisticSalesStage } =
     useOptimisticSalesStages(salesStages);
 
-  const [dataSalesStageDrag, setDataSalesStageDrag] = useState(
-    optimisticSalesStages
-  );
+  const [dataSalesStageDrag, setDataSalesStageDrag] = useState(salesStages);
+
+  useEffect(() => {
+    setDataSalesStageDrag(salesStages);
+  }, [salesStages]);
 
   // TODO: TH nếu chưa drag thì ok, còn nếu đã có drag thì lúc tạo vẫn bị lỗi do chưa set lại status
 
-  const [isDrag, setIsDrag] = useState(false);
+  // const [isDrag, setIsDrag] = useState(false);
 
   function reorder<T>(list: T[], startIndex: number, endIndex: number) {
     const result = Array.from(list);
@@ -39,9 +44,8 @@ export default function DealList({
     return result;
   }
 
-  const onDragEnd = (result: any) => {
+  const onDragEnd = async (result: any) => {
     const { destination, source, type } = result;
-    setIsDrag(!isDrag);
 
     if (!destination) {
       return;
@@ -63,7 +67,9 @@ export default function DealList({
         destination.index
       ).map((item, index) => ({ ...item, order: index }));
       setDataSalesStageDrag(items);
-      // TODO Trigger Server Action
+      // Trigger Server Action
+      await updateSalesStageOrderAction(items);
+      toast.success("Deal reordered");
     }
 
     // User move a card
@@ -107,7 +113,9 @@ export default function DealList({
         sourceList.cardStage = reorderdCards;
 
         setDataSalesStageDrag(newDataSalesStageDrag);
-        // TODO: Trigger Server Action
+        // Trigger Server Action
+        await updateCardStageOrderAction(newDataSalesStageDrag);
+        toast.success("Card reordered");
 
         // User move the card to another list
       } else {
@@ -131,14 +139,17 @@ export default function DealList({
         });
 
         setDataSalesStageDrag(newDataSalesStageDrag);
-        // TODO: Trigger Server Action
+        // setIsDrag(false);
+        // Trigger Server Action
+        await updateCardStageOrderAction(newDataSalesStageDrag);
+        toast.success("Card reordered");
       }
     }
   };
 
   return (
     <div>
-      {optimisticSalesStages.length === 0 ? (
+      {salesStages.length === 0 ? (
         <ol>
           <ListForm />
         </ol>
@@ -152,16 +163,14 @@ export default function DealList({
                   ref={provided.innerRef}
                   className="flex gap-3 h-full flex-wrap"
                 >
-                  {(isDrag ? dataSalesStageDrag : optimisticSalesStages).map(
-                    (stage, index) => (
-                      <ListItem
-                        stage={stage}
-                        key={stage.id}
-                        index={index}
-                        addOptimistic={addOptimisticSalesStage}
-                      />
-                    )
-                  )}
+                  {dataSalesStageDrag.map((stage, index) => (
+                    <ListItem
+                      stage={stage}
+                      key={stage.id}
+                      index={index}
+                      addOptimistic={addOptimisticSalesStage}
+                    />
+                  ))}
                   {provided.placeholder}
                   <ListForm />
                 </ol>

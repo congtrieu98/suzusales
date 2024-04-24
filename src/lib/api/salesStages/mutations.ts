@@ -6,6 +6,7 @@ import {
   updateSalesStageSchema,
   insertSalesStageSchema,
   salesStageIdSchema,
+  CompleteSalesStage,
 } from "@/lib/db/schema/salesStages";
 import { getUserAuth } from "@/lib/auth/utils";
 
@@ -53,6 +54,32 @@ export const updateSalesStage = async (
     console.error(message);
     throw { error: message };
   }
+};
+
+export const updateSalesStageOrder = async (
+  dataSalesStageOrder: CompleteSalesStage[]
+) => {
+  let salesStage;
+  // const listSalesStage = await db.salesStage.findMany();
+  try {
+    const transaction = dataSalesStageOrder.map((stage) =>
+      db.salesStage.update({
+        where: {
+          id: stage.id,
+        },
+        data: {
+          order: stage.order,
+        },
+      })
+    );
+    salesStage = await db.$transaction(transaction);
+  } catch (error) {
+    return {
+      error: "Failed to reoreder",
+    };
+  }
+
+  return { data: salesStage };
 };
 
 export const deleteSalesStage = async (id: SalesStageId) => {

@@ -6,6 +6,7 @@ import {
   createSalesStage,
   deleteSalesStage,
   updateSalesStage,
+  updateSalesStageOrder,
 } from "@/lib/api/salesStages/mutations";
 import {
   SalesStageId,
@@ -14,6 +15,7 @@ import {
   salesStageIdSchema,
   insertSalesStageParams,
   updateSalesStageParams,
+  CompleteSalesStage,
 } from "@/lib/db/schema/salesStages";
 
 const handleErrors = (e: unknown) => {
@@ -42,6 +44,17 @@ export const updateSalesStageAction = async (input: UpdateSalesStageParams) => {
   try {
     const payload = updateSalesStageParams.parse(input);
     await updateSalesStage(payload.id, payload);
+    revalidateSalesStages();
+  } catch (e) {
+    return handleErrors(e);
+  }
+};
+
+export const updateSalesStageOrderAction = async (
+  input: CompleteSalesStage[]
+) => {
+  try {
+    await updateSalesStageOrder(input);
     revalidateSalesStages();
   } catch (e) {
     return handleErrors(e);

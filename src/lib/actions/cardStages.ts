@@ -5,6 +5,7 @@ import {
   createCardStage,
   deleteCardStage,
   updateCardStage,
+  updateCardStageOrder,
 } from "@/lib/api/cardStages/mutations";
 import {
   CardStageId,
@@ -14,6 +15,7 @@ import {
   insertCardStageParams,
   updateCardStageParams,
 } from "@/lib/db/schema/cardStages";
+import { CompleteSalesStage } from "../db/schema/salesStages";
 
 const handleErrors = (e: unknown) => {
   const errMsg = "Error, please try again.";
@@ -41,6 +43,17 @@ export const updateCardStageAction = async (input: UpdateCardStageParams) => {
   try {
     const payload = updateCardStageParams.parse(input);
     await updateCardStage(payload.id, payload);
+    revalidateCardStages();
+  } catch (e) {
+    return handleErrors(e);
+  }
+};
+
+export const updateCardStageOrderAction = async (
+  input: CompleteSalesStage[]
+) => {
+  try {
+    await updateCardStageOrder(input);
     revalidateCardStages();
   } catch (e) {
     return handleErrors(e);

@@ -91,6 +91,7 @@ const CardStageForm = ({
       updatedAt: cardStage?.updatedAt ?? new Date(),
       createdAt: cardStage?.createdAt ?? new Date(),
       id: cardStage?.id ?? "",
+      order: cardStage?.order ?? 1,
       ...values,
     };
     try {
@@ -102,7 +103,11 @@ const CardStageForm = ({
           });
 
         const error = editing
-          ? await updateCardStageAction({ ...values, id: cardStage.id })
+          ? await updateCardStageAction({
+              ...values,
+              id: cardStage.id,
+              order: cardStage?.order ?? 1,
+            })
           : await createCardStageAction(values);
 
         const errorFormatted = {

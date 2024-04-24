@@ -118,7 +118,7 @@ const SalesStageForm = ({
       createdAt: salesStage?.createdAt ?? new Date(),
       id: salesStage?.id ?? "",
       userId: salesStage?.userId ?? "",
-      order: 1,
+      order: salesStage?.order ? salesStage?.order : 1,
       ...values,
     };
     try {

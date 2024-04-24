@@ -23,6 +23,9 @@ export const updateSalesStageParams = updateSalesStageSchema.extend({}).omit({
 });
 export const salesStageIdSchema = baseSchema.pick({ id: true });
 
+export const updateSalesStageOrder = z.object({
+  items: z.array(baseSchema),
+});
 // Types for salesStages - used to type API request params and within Components
 export type SalesStage = z.infer<typeof salesStageSchema>;
 export type NewSalesStage = z.infer<typeof insertSalesStageSchema>;

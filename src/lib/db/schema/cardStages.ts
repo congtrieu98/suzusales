@@ -14,6 +14,7 @@ export const insertCardStageParams = baseSchema
   })
   .omit({
     id: true,
+    order: true,
   });
 
 export const updateCardStageSchema = baseSchema;
