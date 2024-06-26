@@ -37,6 +37,8 @@ import { deleteConsultantAction } from "@/lib/actions/consultants";
 import { Action } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { deleteContactAction } from "@/lib/actions/contacts";
+import { ExternalLink, Import } from "lucide-react";
+import { CSVLink } from "react-csv";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -97,18 +99,61 @@ export function DataTableContact<TData, TValue>({
       },
     },
   });
-
+  const headers = [
+    { label: "First Name", key: "firstname" },
+    { label: "Last Name", key: "lastname" },
+    { label: "Email", key: "email" },
+  ];
+  const dataCsv = [
+    ["firstname", "lastname", "email"],
+    ["Ahmed", "Tomi", "ah@smthing.co.com"],
+    ["Raed", "Labes", "rl@smthing.co.com"],
+    ["Yezzi", "Min l3b", "ymin@cocococo.com"],
+  ];
   return (
     <>
       {pathName.includes("contacts") && (
         <div className="flex items-center py-4">
-          <Input
-            placeholder="Search by name or email"
-            type="text"
-            value={filtering}
-            onChange={(e) => setFiltering(e.target.value)}
-            className="max-w-sm"
-          />
+          <div className="flex justify-between gap-4">
+            <div>
+              <Input
+                placeholder="Search by name or email"
+                type="text"
+                value={filtering}
+                onChange={(e) => setFiltering(e.target.value)}
+                className="max-w-sm"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  console.log("Add new contact");
+                }}
+              >
+                <div className="flex gap-3 items-center">
+                  <span>Import</span>
+                  <Import size={16} />
+                </div>
+              </Button>
+
+              <CSVLink
+                data={dataCsv}
+                filename={"my-file.csv"}
+                className="btn btn-primary"
+                target="_blank"
+                headers={headers}
+              >
+                <Button variant="outline">
+                  <div className="flex gap-3 items-center">
+                    <span>Export</span>
+                    <ExternalLink size={16} />
+                  </div>
+                </Button>
+              </CSVLink>
+            </div>
+          </div>
+
           {table.getFilteredSelectedRowModel().rows.length > 0 && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
